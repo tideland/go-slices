@@ -16,7 +16,7 @@ package slices // import "tideland.dev/go/slices"
 //--------------------
 
 //--------------------
-// TRANSFORMING
+// CHANGES
 //--------------------
 
 // Append appends the values of all slices to one new slice.

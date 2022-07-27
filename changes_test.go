@@ -97,7 +97,7 @@ func TestFilter(t *testing.T) {
 	none := []int{}
 
 	assert.True(slices.IsEqual(slices.Filter(func(v int) bool { return v%2 == 0 }, all), even))
-	assert.True(slices.IsEqual(slices.Filter(fevenol { return v > 100 }, all), none))
+	assert.True(slices.IsEqual(slices.Filter(func(v int) bool { return v > 100 }, all), none))
 }
 
 // TestFilterMap verifies the filtering and mapping of slice values.

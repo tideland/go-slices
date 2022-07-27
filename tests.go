@@ -8,7 +8,7 @@
 package slices // import "tideland.dev/go/slices"
 
 //--------------------
-// TESTING
+// TESTS
 //--------------------
 
 // ContainsAll returns true if the function pred() returns true for all
