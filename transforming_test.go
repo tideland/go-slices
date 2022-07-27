@@ -48,11 +48,13 @@ func TestDelete(t *testing.T) {
 	deletedOne := []int{2, 3, 4, 5, 5, 6, 7, 8, 9}
 	deletedFive := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 	deletedNine := []int{1, 2, 3, 4, 5, 5, 6, 7, 8}
+	none := []int{}
 
 	assert.True(slices.IsEqual(slices.Delete(1, all), deletedOne))
 	assert.True(slices.IsEqual(slices.Delete(5, all), deletedFive))
 	assert.True(slices.IsEqual(slices.Delete(9, all), deletedNine))
 	assert.True(slices.IsEqual(slices.Delete(10, all), all))
+	assert.True(slices.IsEqual(slices.Delete(5, none), none))
 }
 
 // TestDropWhile verifies the dropping of the slice elements as long
@@ -61,6 +63,9 @@ func TestDropWhile(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
 	all := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
+	none := []int{}
+	allGtMinusOne := slices.DropWhile(func(v int) bool { return v <= -1 }, none)
+	cmpGtMinusOne := []int{}
 	allGtZero := slices.DropWhile(func(v int) bool { return v <= 0 }, all)
 	cmpGtZero := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
 	allGtOne := slices.DropWhile(func(v int) bool { return v <= 1 }, all)
@@ -74,6 +79,7 @@ func TestDropWhile(t *testing.T) {
 	allGtTen := slices.DropWhile(func(v int) bool { return v <= 10 }, all)
 	cmpGtTen := []int{}
 
+	assert.True(slices.IsEqual(allGtMinusOne, cmpGtMinusOne))
 	assert.True(slices.IsEqual(allGtZero, cmpGtZero))
 	assert.True(slices.IsEqual(allGtOne, cmpGtOne))
 	assert.True(slices.IsEqual(allGtFive, cmpGtFive))
@@ -91,7 +97,7 @@ func TestFilter(t *testing.T) {
 	none := []int{}
 
 	assert.True(slices.IsEqual(slices.Filter(func(v int) bool { return v%2 == 0 }, all), even))
-	assert.True(slices.IsEqual(slices.Filter(func(v int) bool { return v > 100 }, all), none))
+	assert.True(slices.IsEqual(slices.Filter(fevenol { return v > 100 }, all), none))
 }
 
 // TestFilterMap verifies the filtering and mapping of slice values.
@@ -100,14 +106,19 @@ func TestFilterMap(t *testing.T) {
 
 	all := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
 	even := []string{"2", "4", "6", "8"}
+	none := []bool{}
 	evenMap := func(v int) (string, bool) {
 		if v%2 == 0 {
 			return fmt.Sprintf("%v", v), true
 		}
 		return "", false
 	}
+	noneMap := func(v int) (bool, bool) {
+		return false, false
+	}
 
 	assert.True(slices.IsEqual(slices.FilterMap(evenMap, all), even))
+	assert.True(slices.IsEqual(slices.FilterMap(noneMap, all), none))
 }
 
 // EOF
