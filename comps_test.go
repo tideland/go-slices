@@ -13,6 +13,7 @@ package slices_test // import "tideland.dev/go/slices"
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"tideland.dev/go/audit/asserts"
@@ -93,6 +94,35 @@ func TestFoldRLast(t *testing.T) {
 	assert.Equal(slices.FoldRLast(potentiator, all), outAll)
 	assert.Equal(slices.FoldRLast(potentiator, one), outOne)
 	assert.Equal(slices.FoldRLast(potentiator, none), outNone)
+}
+
+// TestMapFoldL verifies the combined mapping and folding.
+func MapFoldL(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	all := []string{"one", "two", "three"}
+	one := []string{"one"}
+	none := []string{}
+	in := 0
+	outAll := []string{"ONE", "TWO", "THREE"}
+	outOne := []string{"ONE"}
+	outNone := []string{}
+	lengthAll := 11
+	lengthOne := 3
+	lengthNone := 0
+	upperLengther := func(v string, acc int) (string, int) {
+		return strings.ToUpper(v), acc + len(v)
+	}
+
+	mapped, out := slices.MapFoldL(upperLengther, in, all)
+	assert.Equal(mapped, outAll)
+	assert.Equal(out, lengthAll)
+	mapped, out = slices.MapFoldL(upperLengther, in, one)
+	assert.Equal(mapped, outOne)
+	assert.Equal(out, lengthOne)
+	mapped, out = slices.MapFoldL(upperLengther, in, none)
+	assert.Equal(mapped, outNone)
+	assert.Equal(out, lengthNone)
 }
 
 // EOF

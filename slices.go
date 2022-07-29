@@ -8,7 +8,7 @@
 package slices // import "tideland.dev/go/slices"
 
 //--------------------
-// CHANGES
+// SLICES
 //--------------------
 
 // Append appends the values of all slices to one new slice.

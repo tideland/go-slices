@@ -8,7 +8,7 @@
 package slices // import "tideland.dev/go/slices"
 
 //--------------------
-// CALCS
+// COMPUTATIONS
 //--------------------
 
 // FoldL iterates over the slice from left to right. It calls fun() for
@@ -61,6 +61,17 @@ func FoldRLast[V any](fun func(V, V) V, vs []V) V {
 	}
 	last = vs[len(vs)-1]
 	return FoldR(fun, last, vs[:len(vs)-1])
+}
+
+// MapFoldL combines the operations of Map() and FoldL() in one pass.
+func MapFoldL[I, O, Acc any](fun func(I, Acc) (O, Acc), acc Acc, ivs []I) ([]O, Acc) {
+	var ov O
+	var ovs []O
+	for _, iv := range ivs {
+		ov, acc = fun(iv, acc)
+		ovs = append(ovs, ov)
+	}
+	return ovs, acc
 }
 
 // EOF

@@ -146,8 +146,24 @@ func TestMap(t *testing.T) {
 	one := []int{1}
 	none := []int{}
 	mapper := func(v int) string {
+		itoa := map[int]string{
+			0: "zero",
+			1: "one",
+			2: "two",
+			3: "three",
+			4: "four",
+			5: "five",
+			6: "six",
+			7: "seven",
+			8: "eight",
+			9: "nine",
+		}
+		return itoa[v]
 	}
 
+	assert.Equal(slices.Map(mapper, all), []string{"one", "two", "three", "four", "five"})
+	assert.Equal(slices.Map(mapper, one), []string{"one"})
+	assert.Equal(slices.Map(mapper, none), []string{})
 }
 
 // EOF
