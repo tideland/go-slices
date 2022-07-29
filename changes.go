@@ -8,20 +8,12 @@
 package slices // import "tideland.dev/go/slices"
 
 //--------------------
-// IMPORTS
-//--------------------
-
-//--------------------
-// CONSTANTS
-//--------------------
-
-//--------------------
 // CHANGES
 //--------------------
 
 // Append appends the values of all slices to one new slice.
 func Append[V any](vss ...[]V) []V {
-	var all []V
+	all := []V{}
 	for _, vs := range vss {
 		all = append(all, vs...)
 	}
@@ -57,7 +49,7 @@ func DropWhile[V any](pred func(V) bool, vs []V) []V {
 
 // Filter creates a slice from all values where pred() returns true.
 func Filter[V any](pred func(V) bool, vs []V) []V {
-	var nvs []V
+	nvs := []V{}
 	for _, v := range vs {
 		if pred(v) {
 			nvs = append(nvs, v)
@@ -69,13 +61,36 @@ func Filter[V any](pred func(V) bool, vs []V) []V {
 // FilterMap creates a slice from of new values created by fun() where
 // it also returns true.
 func FilterMap[I, O any](fun func(I) (O, bool), ivs []I) []O {
-	var novs []O
+	ovs := []O{}
 	for _, iv := range ivs {
 		if ov, ok := fun(iv); ok {
-			novs = append(novs, ov)
+			ovs = append(ovs, ov)
 		}
 	}
-	return novs
+	return ovs
+}
+
+// Join create a slice mixing a separator between each value of the slice.
+func Join[V any](sep V, vs []V) []V {
+	nvs := []V{}
+	last := len(vs) - 1
+	for i, v := range vs {
+		nvs = append(nvs, v)
+		if i < last {
+			nvs = append(nvs, sep)
+		}
+	}
+	return nvs
+}
+
+// Map creates a slice of output values from the input values and converted
+// by the map function.
+func Map[I, O any](fun func(I) O, ivs []I) []O {
+	ovs := []O{}
+	for _, iv := range ivs {
+		ovs = append(ovs, fun(iv))
+	}
+	return ovs
 }
 
 // EOF

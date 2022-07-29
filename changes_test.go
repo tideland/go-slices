@@ -34,10 +34,10 @@ func TestAppend(t *testing.T) {
 	all := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 	none := []int{}
 
-	assert.True(slices.IsEqual(slices.Append(first, second, third), all))
-	assert.True(slices.IsEqual(slices.Append(first), first))
-	assert.True(slices.IsEqual(slices.Append[int](), []int{}))
-	assert.True(slices.IsEqual(slices.Append(none, none, none), none))
+	assert.Equal(slices.Append(first, second, third), all)
+	assert.Equal(slices.Append(first), first)
+	assert.Equal(slices.Append[int](), []int{})
+	assert.Equal(slices.Append(none, none, none), none)
 }
 
 // TestDelete verifies the deleting of a first matching value of a slice.
@@ -50,11 +50,11 @@ func TestDelete(t *testing.T) {
 	deletedNine := []int{1, 2, 3, 4, 5, 5, 6, 7, 8}
 	none := []int{}
 
-	assert.True(slices.IsEqual(slices.Delete(1, all), deletedOne))
-	assert.True(slices.IsEqual(slices.Delete(5, all), deletedFive))
-	assert.True(slices.IsEqual(slices.Delete(9, all), deletedNine))
-	assert.True(slices.IsEqual(slices.Delete(10, all), all))
-	assert.True(slices.IsEqual(slices.Delete(5, none), none))
+	assert.Equal(slices.Delete(1, all), deletedOne)
+	assert.Equal(slices.Delete(5, all), deletedFive)
+	assert.Equal(slices.Delete(9, all), deletedNine)
+	assert.Equal(slices.Delete(10, all), all)
+	assert.Equal(slices.Delete(5, none), none)
 }
 
 // TestDropWhile verifies the dropping of the slice elements as long
@@ -79,13 +79,13 @@ func TestDropWhile(t *testing.T) {
 	allGtTen := slices.DropWhile(func(v int) bool { return v <= 10 }, all)
 	cmpGtTen := []int{}
 
-	assert.True(slices.IsEqual(allGtMinusOne, cmpGtMinusOne))
-	assert.True(slices.IsEqual(allGtZero, cmpGtZero))
-	assert.True(slices.IsEqual(allGtOne, cmpGtOne))
-	assert.True(slices.IsEqual(allGtFive, cmpGtFive))
-	assert.True(slices.IsEqual(allGtSix, cmpGtSix))
-	assert.True(slices.IsEqual(allGtNine, cmpGtNine))
-	assert.True(slices.IsEqual(allGtTen, cmpGtTen))
+	assert.Equal(allGtMinusOne, cmpGtMinusOne)
+	assert.Equal(allGtZero, cmpGtZero)
+	assert.Equal(allGtOne, cmpGtOne)
+	assert.Equal(allGtFive, cmpGtFive)
+	assert.Equal(allGtSix, cmpGtSix)
+	assert.Equal(allGtNine, cmpGtNine)
+	assert.Equal(allGtTen, cmpGtTen)
 }
 
 // TestFilter verifies the filtering of slice values.
@@ -96,8 +96,8 @@ func TestFilter(t *testing.T) {
 	even := []int{2, 4, 6, 8}
 	none := []int{}
 
-	assert.True(slices.IsEqual(slices.Filter(func(v int) bool { return v%2 == 0 }, all), even))
-	assert.True(slices.IsEqual(slices.Filter(func(v int) bool { return v > 100 }, all), none))
+	assert.Equal(slices.Filter(func(v int) bool { return v%2 == 0 }, all), even)
+	assert.Equal(slices.Filter(func(v int) bool { return v > 100 }, all), none)
 }
 
 // TestFilterMap verifies the filtering and mapping of slice values.
@@ -105,20 +105,49 @@ func TestFilterMap(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
 	all := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
-	even := []string{"2", "4", "6", "8"}
-	none := []bool{}
 	evenMap := func(v int) (string, bool) {
 		if v%2 == 0 {
 			return fmt.Sprintf("%v", v), true
 		}
 		return "", false
 	}
+	even := []string{"2", "4", "6", "8"}
 	noneMap := func(v int) (bool, bool) {
 		return false, false
 	}
+	none := []bool{}
 
-	assert.True(slices.IsEqual(slices.FilterMap(evenMap, all), even))
-	assert.True(slices.IsEqual(slices.FilterMap(noneMap, all), none))
+	assert.Equal(slices.FilterMap(evenMap, all), even)
+	assert.Equal(slices.FilterMap(noneMap, all), none)
+}
+
+// TestJoin verifies the joining of a separator value and the slice values.
+func TestJoin(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	all := []int{1, 2, 3, 4, 5}
+	one := []int{1}
+	none := []int{}
+	sep := 0
+	allJoined := []int{1, 0, 2, 0, 3, 0, 4, 0, 5}
+	oneJoined := []int{1}
+	noneJoined := []int{}
+
+	assert.Equal(slices.Join(sep, all), allJoined)
+	assert.Equal(slices.Join(sep, one), oneJoined)
+	assert.Equal(slices.Join(sep, none), noneJoined)
+}
+
+// TestMap verifies the mapping of slice values.
+func TestMap(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	all := []int{1, 2, 3, 4, 5}
+	one := []int{1}
+	none := []int{}
+	mapper := func(v int) string {
+	}
+
 }
 
 // EOF
