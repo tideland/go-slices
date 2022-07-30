@@ -16,11 +16,10 @@ package slices // import "tideland.dev/go/slices"
 // by each function call is used as input at the next call. The last one will
 // be returned.
 func FoldL[V, Acc any](fun func(V, Acc) Acc, acc Acc, vs []V) Acc {
-	out := acc
 	for _, v := range vs {
-		out = fun(v, out)
+		acc = fun(v, acc)
 	}
-	return out
+	return acc
 }
 
 // FoldLFirst iterates over the slice from left to right. It calls fun() for
@@ -42,11 +41,10 @@ func FoldLFirst[V any](fun func(V, V) V, vs []V) V {
 // by each function call is used as input at the next call. The last one will be
 // returned.
 func FoldR[V, Acc any](fun func(V, Acc) Acc, acc Acc, vs []V) Acc {
-	out := acc
 	for i := len(vs) - 1; i >= 0; i-- {
-		out = fun(vs[i], out)
+		acc = fun(vs[i], acc)
 	}
-	return out
+	return acc
 }
 
 // FoldRLast iterates over the slice from right to left. It calls fun() for
@@ -67,9 +65,26 @@ func FoldRLast[V any](fun func(V, V) V, vs []V) V {
 func MapFoldL[I, O, Acc any](fun func(I, Acc) (O, Acc), acc Acc, ivs []I) ([]O, Acc) {
 	var ov O
 	var ovs []O
-	for _, iv := range ivs {
+	if ivs != nil {
+		ovs = make([]O, len(ivs))
+	}
+	for i, iv := range ivs {
 		ov, acc = fun(iv, acc)
-		ovs = append(ovs, ov)
+		ovs[i] = ov
+	}
+	return ovs, acc
+}
+
+// MapFoldR combines the operations of Map() and FoldR() in one pass.
+func MapFoldR[I, O, Acc any](fun func(I, Acc) (O, Acc), acc Acc, ivs []I) ([]O, Acc) {
+	var ov O
+	var ovs []O
+	if ivs != nil {
+		ovs = make([]O, len(ivs))
+	}
+	for i := len(ivs) - 1; i >= 0; i-- {
+		ov, acc = fun(ivs[i], acc)
+		ovs[i] = ov
 	}
 	return ovs, acc
 }
