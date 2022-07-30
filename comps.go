@@ -89,4 +89,20 @@ func MapFoldR[I, O, Acc any](fun func(I, Acc) (O, Acc), acc Acc, ivs []I) ([]O, 
 	return ovs, acc
 }
 
+// Partition checks all values of the slices and returns all where pred() returns
+// true in one slice and false in another one. Their individual ordering will be
+// the same of the original one.
+func Partition[V any](pred func(V) bool, vs []V) ([]V, []V) {
+	var satisfying []V
+	var notSatisfying []V
+	for _, v := range vs {
+		if pred(v) {
+			satisfying = append(satisfying, v)
+		} else {
+			notSatisfying = append(notSatisfying, v)
+		}
+	}
+	return satisfying, notSatisfying
+}
+
 // EOF

@@ -28,18 +28,30 @@ import (
 func TestFoldL(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	all := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	one := []int{1}
-	none := []int{}
-	in := "0"
-	outAll := "0123456789"
-	outOne := "01"
-	outNone := "0"
+	acc := "0"
 	stringer := func(v int, acc string) string { return fmt.Sprintf("%s%d", acc, v) }
+	tests := []struct {
+		values []int
+		out    string
+	}{
+		{
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    "0123456789",
+		}, {
+			values: []int{1},
+			out:    "01",
+		}, {
+			values: []int{},
+			out:    "0",
+		}, {
+			values: nil,
+			out:    "0",
+		},
+	}
 
-	assert.Equal(slices.FoldL(stringer, in, all), outAll)
-	assert.Equal(slices.FoldL(stringer, in, one), outOne)
-	assert.Equal(slices.FoldL(stringer, in, none), outNone)
+	for _, test := range tests {
+		assert.Equal(slices.FoldL(stringer, acc, test.values), test.out)
+	}
 }
 
 // TestFoldLFirst verifies the left folding of a slice with first as
@@ -47,17 +59,29 @@ func TestFoldL(t *testing.T) {
 func TestFoldLFirst(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	all := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	one := []int{1}
-	none := []int{}
-	outAll := 123456789
-	outOne := 1
-	outNone := 0
 	potentiator := func(v, acc int) int { return acc*10 + v }
+	tests := []struct {
+		values []int
+		out    int
+	}{
+		{
+			values: []int{1, 2, 3, 4, 5},
+			out:    12345,
+		}, {
+			values: []int{1},
+			out:    1,
+		}, {
+			values: []int{},
+			out:    0,
+		}, {
+			values: nil,
+			out:    0,
+		},
+	}
 
-	assert.Equal(slices.FoldLFirst(potentiator, all), outAll)
-	assert.Equal(slices.FoldLFirst(potentiator, one), outOne)
-	assert.Equal(slices.FoldLFirst(potentiator, none), outNone)
+	for _, test := range tests {
+		assert.Equal(slices.FoldLFirst(potentiator, test.values), test.out)
+	}
 }
 
 // TestFoldR verifies the right folding of a slice.
@@ -186,6 +210,42 @@ func TestMapFoldR(t *testing.T) {
 		mapped, out := slices.MapFoldR(plusStringer, in, test.values)
 		assert.Equal(mapped, test.mapped)
 		assert.Equal(out, test.out)
+	}
+}
+
+// TestPartition verifies the partitioning of slices.
+func TestPartition(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	isMod := func(v int) bool { return v%2 == 0 }
+	tests := []struct {
+		values        []int
+		satisfying    []int
+		notSatisfying []int
+	}{
+		{
+			values:        []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			satisfying:    []int{2, 4, 6, 8},
+			notSatisfying: []int{1, 3, 5, 7, 9},
+		}, {
+			values:        []int{1},
+			satisfying:    nil,
+			notSatisfying: []int{1},
+		}, {
+			values:        []int{},
+			satisfying:    nil,
+			notSatisfying: nil,
+		}, {
+			values:        nil,
+			satisfying:    nil,
+			notSatisfying: nil,
+		},
+	}
+
+	for _, test := range tests {
+		satisfying, notSatisfying := slices.Partition(isMod, test.values)
+		assert.Equal(satisfying, test.satisfying)
+		assert.Equal(notSatisfying, test.notSatisfying)
 	}
 }
 
