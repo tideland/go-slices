@@ -62,30 +62,43 @@ func TestDelete(t *testing.T) {
 func TestDropWhile(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	all := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
-	none := []int{}
-	allGtMinusOne := slices.DropWhile(func(v int) bool { return v <= -1 }, none)
-	cmpGtMinusOne := []int{}
-	allGtZero := slices.DropWhile(func(v int) bool { return v <= 0 }, all)
-	cmpGtZero := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
-	allGtOne := slices.DropWhile(func(v int) bool { return v <= 1 }, all)
-	cmpGtOne := []int{2, 3, 4, 5, 5, 6, 7, 8, 9}
-	allGtFive := slices.DropWhile(func(v int) bool { return v <= 5 }, all)
-	cmpGtFive := []int{6, 7, 8, 9}
-	allGtSix := slices.DropWhile(func(v int) bool { return v <= 6 }, all)
-	cmpGtSix := []int{7, 8, 9}
-	allGtNine := slices.DropWhile(func(v int) bool { return v <= 9 }, all)
-	cmpGtNine := []int{}
-	allGtTen := slices.DropWhile(func(v int) bool { return v <= 10 }, all)
-	cmpGtTen := []int{}
+	dropper := func(v int) bool { return v <= 5 }
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Longer slice",
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    []int{6, 7, 8, 9},
+		}, {
+			descr:  "Longer slice without drop",
+			values: []int{6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
+			out:    []int{6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
+		}, {
+			descr:  "Single value slice with drop",
+			values: []int{0},
+			out:    nil,
+		}, {
+			descr:  "Single value slice without drop",
+			values: []int{9},
+			out:    []int{9},
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    nil,
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
 
-	assert.Equal(allGtMinusOne, cmpGtMinusOne)
-	assert.Equal(allGtZero, cmpGtZero)
-	assert.Equal(allGtOne, cmpGtOne)
-	assert.Equal(allGtFive, cmpGtFive)
-	assert.Equal(allGtSix, cmpGtSix)
-	assert.Equal(allGtNine, cmpGtNine)
-	assert.Equal(allGtTen, cmpGtTen)
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.DropWhile(dropper, test.values), test.out)
+	}
 }
 
 // TestFilter verifies the filtering of slice values.
@@ -125,26 +138,41 @@ func TestFilterMap(t *testing.T) {
 func TestJoin(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	all := []int{1, 2, 3, 4, 5}
-	one := []int{1}
-	none := []int{}
 	sep := 0
-	allJoined := []int{1, 0, 2, 0, 3, 0, 4, 0, 5}
-	oneJoined := []int{1}
-	noneJoined := []int{}
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Longer slice",
+			values: []int{1, 2, 3, 4, 5},
+			out:    []int{1, 0, 2, 0, 3, 0, 4, 0, 5},
+		}, {
+			descr:  "Single value slice",
+			values: []int{0},
+			out:    []int{0},
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
 
-	assert.Equal(slices.Join(sep, all), allJoined)
-	assert.Equal(slices.Join(sep, one), oneJoined)
-	assert.Equal(slices.Join(sep, none), noneJoined)
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Join(sep, test.values), test.out)
+	}
 }
 
 // TestMap verifies the mapping of slice values.
 func TestMap(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	all := []int{1, 2, 3, 4, 5}
-	one := []int{1}
-	none := []int{}
 	mapper := func(v int) string {
 		itoa := map[int]string{
 			0: "zero",
@@ -160,10 +188,68 @@ func TestMap(t *testing.T) {
 		}
 		return itoa[v]
 	}
+	tests := []struct {
+		descr  string
+		values []int
+		out    []string
+	}{
+		{
+			descr:  "Longer slice",
+			values: []int{1, 2, 3, 4, 5},
+			out:    []string{"one", "two", "three", "four", "five"},
+		}, {
+			descr:  "Single value slice",
+			values: []int{0},
+			out:    []string{"zero"},
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    []string{},
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
 
-	assert.Equal(slices.Map(mapper, all), []string{"one", "two", "three", "four", "five"})
-	assert.Equal(slices.Map(mapper, one), []string{"one"})
-	assert.Equal(slices.Map(mapper, none), []string{})
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Map(mapper, test.values), test.out)
+	}
+}
+
+// TestReverse verifies the reversal of slices.
+func TestReverse(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Longer slice",
+			values: []int{1, 2, 3, 4, 5},
+			out:    []int{5, 4, 3, 2, 1},
+		}, {
+			descr:  "Single value slice",
+			values: []int{0},
+			out:    []int{0},
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Reverse(test.values), test.out)
+	}
 }
 
 // EOF

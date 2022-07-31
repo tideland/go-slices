@@ -33,18 +33,24 @@ func Delete[V comparable](v V, vs []V) []V {
 }
 
 // DropWhile removes all values as long pred() returns true.
-func DropWhile[V any](pred func(V) bool, vs []V) []V {
-	ni := -1
-	for i, v := range vs {
-		if !pred(v) {
-			break
-		}
-		ni = i
+func DropWhile[V any](pred func(V) bool, ivs []V) []V {
+	if ivs == nil {
+		return nil
 	}
-	ni++
-	nvs := make([]V, len(vs)-ni)
-	copy(nvs, vs[ni:])
-	return nvs
+	dropped := -1
+	for i, v := range ivs {
+		if pred(v) {
+			dropped = i
+			continue
+		}
+		break
+	}
+	if dropped == len(ivs)-1 {
+		return nil
+	}
+	ovs := make([]V, len(ivs)-dropped-1)
+	copy(ovs, ivs[dropped+1:])
+	return ovs
 }
 
 // Filter creates a slice from all values where pred() returns true.
@@ -71,24 +77,44 @@ func FilterMap[I, O any](fun func(I) (O, bool), ivs []I) []O {
 }
 
 // Join create a slice mixing a separator between each value of the slice.
-func Join[V any](sep V, vs []V) []V {
-	nvs := []V{}
-	last := len(vs) - 1
-	for i, v := range vs {
-		nvs = append(nvs, v)
+func Join[V any](sep V, ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	ovs := []V{}
+	last := len(ivs) - 1
+	for i, v := range ivs {
+		ovs = append(ovs, v)
 		if i < last {
-			nvs = append(nvs, sep)
+			ovs = append(ovs, sep)
 		}
 	}
-	return nvs
+	return ovs
 }
 
 // Map creates a slice of output values from the input values and converted
 // by the map function.
 func Map[I, O any](fun func(I) O, ivs []I) []O {
-	ovs := []O{}
-	for _, iv := range ivs {
-		ovs = append(ovs, fun(iv))
+	if ivs == nil {
+		return nil
+	}
+	ovs := make([]O, len(ivs))
+	for i, iv := range ivs {
+		ovs[i] = fun(iv)
+	}
+	return ovs
+}
+
+// Reverse returns the slice in reverse order.
+func Reverse[V any](ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	l := len(ivs)
+	ovs := make([]V, l)
+	for i := range ivs {
+		l--
+		ovs[i] = ivs[l]
 	}
 	return ovs
 }
