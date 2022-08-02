@@ -12,24 +12,27 @@ package slices // import "tideland.dev/go/slices"
 //--------------------
 
 // Append appends the values of all slices to one new slice.
-func Append[V any](vss ...[]V) []V {
-	all := []V{}
-	for _, vs := range vss {
-		all = append(all, vs...)
+func Append[V any](ivss ...[]V) []V {
+	if ivss == nil {
+		return nil
 	}
-	return all
+	ovs := []V{}
+	for _, vs := range ivss {
+		ovs = append(ovs, vs...)
+	}
+	return ovs
 }
 
 // Delete removes the first matching value of the slice.
-func Delete[V comparable](v V, vs []V) []V {
-	for i := range vs {
-		if vs[i] == v {
-			var vsn []V
-			vsn = append(append(vsn, vs[:i]...), vs[i+1:]...)
-			return vsn
+func Delete[V comparable](v V, ivs []V) []V {
+	for i := range ivs {
+		if ivs[i] == v {
+			var ovs []V
+			ovs = append(ivs[:i], ivs[i+1:]...)
+			return ovs
 		}
 	}
-	return vs
+	return ivs
 }
 
 // DropWhile removes all values as long pred() returns true.

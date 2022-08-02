@@ -28,33 +28,92 @@ import (
 func TestAppend(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	first := []int{1, 2, 3}
-	second := []int{4, 5, 6}
-	third := []int{7, 8, 9}
-	all := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	none := []int{}
+	tests := []struct {
+		descr  string
+		values [][]int
+		out    []int
+	}{
+		{
+			descr:  "One slice",
+			values: [][]int{{1, 2, 3}},
+			out:    []int{1, 2, 3},
+		}, {
+			descr:  "Two slices",
+			values: [][]int{{1, 2, 3}, {4, 5, 6}},
+			out:    []int{1, 2, 3, 4, 5, 6},
+		}, {
+			descr:  "More slices",
+			values: [][]int{{1, 2, 3}, {4, 5, 6}, {7}, {8}, {9, 10}},
+			out:    []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+		}, {
+			descr:  "No slices",
+			values: [][]int{},
+			out:    []int{},
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
 
-	assert.Equal(slices.Append(first, second, third), all)
-	assert.Equal(slices.Append(first), first)
-	assert.Equal(slices.Append[int](), []int{})
-	assert.Equal(slices.Append(none, none, none), none)
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Append(test.values...), test.out)
+	}
 }
 
 // TestDelete verifies the deleting of a first matching value of a slice.
 func TestDelete(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	all := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
-	deletedOne := []int{2, 3, 4, 5, 5, 6, 7, 8, 9}
-	deletedFive := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	deletedNine := []int{1, 2, 3, 4, 5, 5, 6, 7, 8}
-	none := []int{}
+	tests := []struct {
+		descr  string
+		value  int
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Delete first",
+			value:  1,
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete last",
+			value:  9,
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8},
+		}, {
+			descr:  "Delete single value",
+			value:  2,
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{1, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete one of double",
+			value:  5,
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete uncontained value",
+			value:  10,
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete in empty input",
+			value:  1,
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Delete in nil input",
+			value:  1,
+			values: nil,
+			out:    nil,
+		},
+	}
 
-	assert.Equal(slices.Delete(1, all), deletedOne)
-	assert.Equal(slices.Delete(5, all), deletedFive)
-	assert.Equal(slices.Delete(9, all), deletedNine)
-	assert.Equal(slices.Delete(10, all), all)
-	assert.Equal(slices.Delete(5, none), none)
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Delete(test.value, test.values), test.out)
+	}
 }
 
 // TestDropWhile verifies the dropping of the slice elements as long
@@ -104,6 +163,48 @@ func TestDropWhile(t *testing.T) {
 // TestFilter verifies the filtering of slice values.
 func TestFilter(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	filter := func(v int) bool { return v%2 == 0 }
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Many values, some filtered",
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    []int{2, 4, 6, 8},
+		}, {
+			descr:  "Many values, none filtered",
+			values: []int{2, 4, 6, 8, 10, 12, 14, 16},
+			out:    []int{2, 4, 6, 8, 10, 12, 14, 16},
+		}, {
+			descr:  "Many values, all filtered",
+			values: []int{1, 3, 5, 7, 11, 13, 15, 17},
+			out:    []int{},
+		}, {
+			descr:  "One value, not filtered",
+			values: []int{2},
+			out:    []int{2},
+		}, {
+			descr:  "One value, filtered",
+			values: []int{1},
+			out:    []int{},
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Filter(filter, test.values), test.out)
+	}
 
 	all := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
 	even := []int{2, 4, 6, 8}

@@ -13,8 +13,8 @@ package slices // import "tideland.dev/go/slices"
 
 // ContainsAll returns true if the function pred() returns true for all
 // values of the slice.
-func ContainsAll[V any](pred func(v V) bool, vs []V) bool {
-	for _, v := range vs {
+func ContainsAll[V any](pred func(v V) bool, ivs []V) bool {
+	for _, v := range ivs {
 		if !pred(v) {
 			return false
 		}
@@ -24,8 +24,8 @@ func ContainsAll[V any](pred func(v V) bool, vs []V) bool {
 
 // ContainsAny returns true if the function pred() returns true for at least
 // one value of the slice.
-func ContainsAny[V any](pred func(v V) bool, vs []V) bool {
-	for _, v := range vs {
+func ContainsAny[V any](pred func(v V) bool, ivs []V) bool {
+	for _, v := range ivs {
 		if pred(v) {
 			return true
 		}
@@ -47,10 +47,10 @@ func IsEqual[V comparable](first, second []V) bool {
 }
 
 // IsMember returns true if the slice contains the value v.
-func IsMember[V comparable](v V, vs []V) bool {
+func IsMember[V comparable](v V, ivs []V) bool {
 	return ContainsAny(func(iv V) bool {
 		return iv == v
-	}, vs)
+	}, ivs)
 }
 
 // IsPrefix returns true if the first slice is the prefix of the second one.
@@ -78,6 +78,18 @@ func IsSuffix[V comparable](suffix, all []V) bool {
 		}
 	}
 	return true
+}
+
+// Search returns the first value that satisfies the given predicate.
+func Search[V any](pred func(v V) bool, ivs []V) (V, bool) {
+	for _, v := range ivs {
+		if pred(v) {
+			return v, true
+		}
+	}
+	// Return default value and false.
+	var ov V
+	return ov, false
 }
 
 // EOF
