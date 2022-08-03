@@ -169,43 +169,157 @@ func TestIsEqual(t *testing.T) {
 func TestIsMember(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	is := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	fs := []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}
+	tests := []struct {
+		descr  string
+		values []int
+		value  int
+		out    bool
+	}{
+		{
+			descr:  "Slice contains value",
+			values: []int{1, 2, 3, 4, 5},
+			value:  3,
+			out:    true,
+		}, {
+			descr:  "Slice does not contain value",
+			values: []int{1, 2, 3, 4, 5},
+			value:  10,
+			out:    false,
+		}, {
+			descr:  "Empty slice does not contain value",
+			values: []int{},
+			value:  10,
+			out:    false,
+		}, {
+			descr:  "Nil slice does not contain value",
+			values: nil,
+			value:  10,
+			out:    false,
+		},
+	}
 
-	assert.True(slices.IsMember[int](5, is))
-	assert.True(slices.IsMember(9, is))
-	assert.False(slices.IsMember(100, is))
-	assert.True(slices.IsMember(5.0, fs))
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.IsMember(test.value, test.values), test.out)
+	}
 }
 
 // TestIsPrefix verifies the testing of prefix slices.
 func TestIsPrefix(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	prefixA := []int{1, 2, 3, 4, 5}
-	prefixB := []int{1, 2, 3, 99, 5}
-	prefixC := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-	all := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	tests := []struct {
+		descr  string
+		values []int
+		prefix []int
+		out    bool
+	}{
+		{
+			descr:  "Slice has prefix",
+			values: []int{1, 2, 3, 4, 5},
+			prefix: []int{1, 2, 3},
+			out:    true,
+		}, {
+			descr:  "Slice and prefix are idendtical",
+			values: []int{1, 2, 3, 4, 5},
+			prefix: []int{1, 2, 3, 4, 5},
+			out:    true,
+		}, {
+			descr:  "Prefix does not match",
+			values: []int{1, 2, 3, 4, 5},
+			prefix: []int{1, 2, 4},
+			out:    false,
+		}, {
+			descr:  "Prefix is too long",
+			values: []int{1, 2, 3, 4, 5},
+			prefix: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    false,
+		}, {
+			descr:  "Prefix is empty slice",
+			values: []int{1, 2, 3, 4, 5},
+			prefix: []int{},
+			out:    true,
+		}, {
+			descr:  "Both are empty slices",
+			values: []int{},
+			prefix: []int{},
+			out:    true,
+		}, {
+			descr:  "Prefix is nil",
+			values: []int{1, 2, 3, 4, 5},
+			prefix: nil,
+			out:    true,
+		}, {
+			descr:  "Slice and prefix are nil",
+			values: nil,
+			prefix: nil,
+			out:    true,
+		},
+	}
 
-	assert.True(slices.IsPrefix(prefixA, all))
-	assert.True(slices.IsPrefix(all, all))
-	assert.False(slices.IsPrefix(prefixB, all))
-	assert.False(slices.IsPrefix(prefixC, all))
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.IsPrefix(test.prefix, test.values), test.out)
+	}
 }
 
 // TestIsSuffix verifies the testing of suffix slices.
 func TestIsSuffix(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	suffixA := []int{6, 7, 8, 9, 10}
-	suffixB := []int{6, 7, 8, 99, 10}
-	suffixC := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-	all := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	tests := []struct {
+		descr  string
+		values []int
+		suffix []int
+		out    bool
+	}{
+		{
+			descr:  "Slice has suffix",
+			values: []int{1, 2, 3, 4, 5},
+			suffix: []int{3, 4, 5},
+			out:    true,
+		}, {
+			descr:  "slice and suffix are identical",
+			values: []int{1, 2, 3, 4, 5},
+			suffix: []int{1, 2, 3, 4, 5},
+			out:    true,
+		}, {
+			descr:  "Suffix does not match",
+			values: []int{1, 2, 3, 4, 5},
+			suffix: []int{3, 4, 6},
+			out:    false,
+		}, {
+			descr:  "Suffix is too long",
+			values: []int{1, 2, 3, 4, 5},
+			suffix: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    false,
+		}, {
+			descr:  "Suffix is empty slice",
+			values: []int{1, 2, 3, 4, 5},
+			suffix: []int{},
+			out:    true,
+		}, {
+			descr:  "Both are empty slices",
+			values: []int{},
+			suffix: []int{},
+			out:    true,
+		}, {
+			descr:  "Suffix is nil",
+			values: []int{1, 2, 3, 4, 5},
+			suffix: nil,
+			out:    true,
+		}, {
+			descr:  "Slice and suffix are nil",
+			values: nil,
+			suffix: nil,
+			out:    true,
+		},
+	}
 
-	assert.True(slices.IsSuffix(suffixA, all))
-	assert.True(slices.IsSuffix(all, all))
-	assert.False(slices.IsSuffix(suffixB, all))
-	assert.False(slices.IsSuffix(suffixC, all))
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.IsSuffix(test.suffix, test.values), test.out)
+	}
 }
 
 // TestSearch verifies the search inside a slice.
