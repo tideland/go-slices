@@ -205,13 +205,6 @@ func TestFilter(t *testing.T) {
 		assert.Logf(test.descr)
 		assert.Equal(slices.Filter(filter, test.values), test.out)
 	}
-
-	all := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
-	even := []int{2, 4, 6, 8}
-	none := []int{}
-
-	assert.Equal(slices.Filter(func(v int) bool { return v%2 == 0 }, all), even)
-	assert.Equal(slices.Filter(func(v int) bool { return v > 100 }, all), none)
 }
 
 // TestFilterMap verifies the filtering and mapping of slice values.
@@ -350,6 +343,64 @@ func TestReverse(t *testing.T) {
 	for _, test := range tests {
 		assert.Logf(test.descr)
 		assert.Equal(slices.Reverse(test.values), test.out)
+	}
+}
+
+// TestSplit veriefies the splitting of slices into two parts.
+func TestSplit(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr  string
+		n      int
+		values []int
+		lout   []int
+		rout   []int
+	}{
+		{
+			descr:  "Split slice in the middle",
+			n:      2,
+			values: []int{1, 2, 3, 4, 5},
+			lout:   []int{1, 2, 3},
+			rout:   []int{4, 5},
+		}, {
+			descr:  "Split slice in the beginning",
+			n:      0,
+			values: []int{1, 2, 3, 4, 5},
+			lout:   []int{1},
+			rout:   []int{2, 3, 4, 5},
+		}, {
+			descr:  "Split slice in the end",
+			n:      4,
+			values: []int{1, 2, 3, 4, 5},
+			lout:   []int{1, 2, 3, 4, 5},
+			rout:   []int{},
+		}, {
+			descr:  "Split a single element slice",
+			n:      0,
+			values: []int{1},
+			lout:   []int{1},
+			rout:   []int{},
+		}, {
+			descr:  "Split an empty slice",
+			n:      0,
+			values: []int{},
+			lout:   []int{},
+			rout:   []int{},
+		}, {
+			descr:  "Split a nil slice",
+			n:      0,
+			values: nil,
+			lout:   nil,
+			rout:   nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		lout, rout := slices.Split(test.n, test.values)
+		assert.Equal(lout, test.lout)
+		assert.Equal(rout, test.rout)
 	}
 }
 

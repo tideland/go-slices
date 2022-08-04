@@ -57,19 +57,25 @@ func DropWhile[V any](pred func(V) bool, ivs []V) []V {
 }
 
 // Filter creates a slice from all values where pred() returns true.
-func Filter[V any](pred func(V) bool, vs []V) []V {
-	nvs := []V{}
-	for _, v := range vs {
+func Filter[V any](pred func(V) bool, ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	ovs := []V{}
+	for _, v := range ivs {
 		if pred(v) {
-			nvs = append(nvs, v)
+			ovs = append(ovs, v)
 		}
 	}
-	return nvs
+	return ovs
 }
 
 // FilterMap creates a slice from of new values created by fun() where
 // it also returns true.
 func FilterMap[I, O any](fun func(I) (O, bool), ivs []I) []O {
+	if ivs == nil {
+		return nil
+	}
 	ovs := []O{}
 	for _, iv := range ivs {
 		if ov, ok := fun(iv); ok {
@@ -120,6 +126,24 @@ func Reverse[V any](ivs []V) []V {
 		ovs[i] = ivs[l]
 	}
 	return ovs
+}
+
+// Split returns the first n values of a slice as first slice and the rest
+// as second.
+func Split[V any](n int, ivs []V) ([]V, []V) {
+	switch {
+	case ivs == nil:
+		return nil, nil
+	case n < 0:
+		n = 0
+	case n >= len(ivs):
+		n = len(ivs) - 1
+	}
+	lovs := make([]V, n+1)
+	rovs := make([]V, len(ivs)-n-1)
+	copy(lovs, ivs[:n+1])
+	copy(rovs, ivs[n+1:])
+	return lovs, rovs
 }
 
 // EOF
