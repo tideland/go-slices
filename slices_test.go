@@ -62,6 +62,92 @@ func TestAppend(t *testing.T) {
 	}
 }
 
+// TestCopy verifies the convenient copy of sections of slices into
+// new created slices.
+func TestCopy(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr      string
+		values     []int
+		fpos, tpos int
+		out        []int
+	}{
+		{
+			descr:  "Copy total slice",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   0,
+			tpos:   4,
+			out:    []int{1, 2, 3, 4, 5},
+		}, {
+			descr:  "Copy subslice from insert of slice",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   1,
+			tpos:   3,
+			out:    []int{2, 3, 4},
+		}, {
+			descr:  "Copy from beginning",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   0,
+			tpos:   2,
+			out:    []int{1, 2, 3},
+		}, {
+			descr:  "Copy till ending",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   2,
+			tpos:   4,
+			out:    []int{3, 4, 5},
+		}, {
+			descr:  "Copy from before beginning",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   -9,
+			tpos:   2,
+			out:    []int{1, 2, 3},
+		}, {
+			descr:  "Copy till after ending",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   2,
+			tpos:   9,
+			out:    []int{3, 4, 5},
+		}, {
+			descr:  "Copy with fpos higher than tpos",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   3,
+			tpos:   1,
+			out:    nil,
+		}, {
+			descr:  "Copy from before slice",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   -9,
+			tpos:   -1,
+			out:    nil,
+		}, {
+			descr:  "Copy from behind slice",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   11,
+			tpos:   13,
+			out:    nil,
+		}, {
+			descr:  "Copy from empty slice",
+			values: []int{},
+			fpos:   1,
+			tpos:   3,
+			out:    nil,
+		}, {
+			descr:  "Copy from nil slice",
+			values: nil,
+			fpos:   1,
+			tpos:   3,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Copy(test.values, test.fpos, test.tpos), test.out)
+	}
+}
+
 // TestDelete verifies the deleting of a first matching value of a slice.
 func TestDelete(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
@@ -374,19 +460,19 @@ func TestSplit(t *testing.T) {
 			n:      4,
 			values: []int{1, 2, 3, 4, 5},
 			lout:   []int{1, 2, 3, 4, 5},
-			rout:   []int{},
+			rout:   nil,
 		}, {
 			descr:  "Split a single element slice",
 			n:      0,
 			values: []int{1},
 			lout:   []int{1},
-			rout:   []int{},
+			rout:   nil,
 		}, {
 			descr:  "Split an empty slice",
 			n:      0,
 			values: []int{},
-			lout:   []int{},
-			rout:   []int{},
+			lout:   nil,
+			rout:   nil,
 		}, {
 			descr:  "Split a nil slice",
 			n:      0,
@@ -399,6 +485,65 @@ func TestSplit(t *testing.T) {
 	for _, test := range tests {
 		assert.Logf(test.descr)
 		lout, rout := slices.Split(test.n, test.values)
+		assert.Equal(lout, test.lout)
+		assert.Equal(rout, test.rout)
+	}
+}
+
+// TestSplitWith veriefies the splitting of slices into two parts based
+// on value testing.
+func TestSplitWith(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr  string
+		pred   func(int) bool
+		values []int
+		lout   []int
+		rout   []int
+	}{
+		{
+			descr:  "Split slice in the middle",
+			pred:   func(v int) bool { return v < 4 },
+			values: []int{1, 2, 3, 4, 5},
+			lout:   []int{1, 2, 3},
+			rout:   []int{4, 5},
+		}, {
+			descr:  "Split slice in the beginning",
+			pred:   func(v int) bool { return v == 1 },
+			values: []int{1, 2, 3, 4, 5},
+			lout:   []int{1},
+			rout:   []int{2, 3, 4, 5},
+		}, {
+			descr:  "Split slice in the end",
+			pred:   func(v int) bool { return v < 6 },
+			values: []int{1, 2, 3, 4, 5},
+			lout:   []int{1, 2, 3, 4, 5},
+			rout:   nil,
+		}, {
+			descr:  "Split a single element slice",
+			pred:   func(v int) bool { return v == 1 },
+			values: []int{1},
+			lout:   []int{1},
+			rout:   nil,
+		}, {
+			descr:  "Split an empty slice",
+			pred:   func(v int) bool { return true },
+			values: []int{},
+			lout:   nil,
+			rout:   nil,
+		}, {
+			descr:  "Split a nil slice",
+			pred:   func(v int) bool { return true },
+			values: nil,
+			lout:   nil,
+			rout:   nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		lout, rout := slices.SplitWith(test.pred, test.values)
 		assert.Equal(lout, test.lout)
 		assert.Equal(rout, test.rout)
 	}

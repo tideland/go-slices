@@ -23,6 +23,26 @@ func Append[V any](ivss ...[]V) []V {
 	return ovs
 }
 
+// Copy copies the values of slices from fpos to tpos into a new slice.
+func Copy[V any](ivs []V, fpos, tpos int) []V {
+	if ivs == nil || fpos > tpos {
+		return nil
+	}
+	if fpos < 0 {
+		fpos = 0
+	} else if fpos >= len(ivs) {
+		return nil
+	}
+	if tpos < 0 {
+		return nil
+	} else if tpos >= len(ivs) {
+		tpos = len(ivs) - 1
+	}
+	ovs := make([]V, tpos-fpos+1)
+	copy(ovs, ivs[fpos:tpos+1])
+	return ovs
+}
+
 // Delete removes the first matching value of the slice.
 func Delete[V comparable](v V, ivs []V) []V {
 	for i := range ivs {
@@ -135,15 +155,27 @@ func Split[V any](n int, ivs []V) ([]V, []V) {
 	case ivs == nil:
 		return nil, nil
 	case n < 0:
-		n = 0
+		return nil, Copy(ivs, 0, n)
 	case n >= len(ivs):
-		n = len(ivs) - 1
+		return Copy(ivs, 0, n), nil
 	}
-	lovs := make([]V, n+1)
-	rovs := make([]V, len(ivs)-n-1)
-	copy(lovs, ivs[:n+1])
-	copy(rovs, ivs[n+1:])
-	return lovs, rovs
+	return Copy(ivs, 0, n), Copy(ivs, n+1, len(ivs))
+}
+
+// SplitWith returns the values while pred() returns true as first and the rest
+// as second slice.
+func SplitWith[V any](pred func(V) bool, ivs []V) ([]V, []V) {
+	if ivs == nil || len(ivs) == 0 {
+		return nil, nil
+	}
+	n := -1
+	for _, v := range ivs {
+		if !pred(v) {
+			break
+		}
+		n++
+	}
+	return Split(n, ivs)
 }
 
 // EOF
