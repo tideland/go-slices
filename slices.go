@@ -13,46 +13,35 @@ package slices // import "tideland.dev/go/slices"
 
 // Append appends the values of all slices to one new slice.
 func Append[V any](ivss ...[]V) []V {
-	if ivss == nil {
-		return nil
-	}
-	ovs := []V{}
+	var ovs []V
 	for _, vs := range ivss {
-		ovs = append(ovs, vs...)
+		if vs != nil {
+			ovs = append(ovs, vs...)
+		}
 	}
 	return ovs
 }
 
-// Copy copies the values of slices from fpos to tpos into a new slice.
-func Copy[V any](ivs []V, fpos, tpos int) []V {
-	if ivs == nil || fpos > tpos {
+// Copy is simply a convenient combination of allocation and copying.
+func Copy[V any](ivs []V) []V {
+	if ivs == nil {
 		return nil
 	}
-	if fpos < 0 {
-		fpos = 0
-	} else if fpos >= len(ivs) {
-		return nil
-	}
-	if tpos < 0 {
-		return nil
-	} else if tpos >= len(ivs) {
-		tpos = len(ivs) - 1
-	}
-	ovs := make([]V, tpos-fpos+1)
-	copy(ovs, ivs[fpos:tpos+1])
+	ovs := make([]V, len(ivs))
+	copy(ovs, ivs)
 	return ovs
 }
 
 // Delete removes the first matching value of the slice.
 func Delete[V comparable](v V, ivs []V) []V {
+	ovs := Copy(ivs)
 	for i := range ivs {
-		if ivs[i] == v {
-			var ovs []V
-			ovs = append(ivs[:i], ivs[i+1:]...)
+		if ovs[i] == v {
+			ovs = append(ovs[:i], ovs[i+1:]...)
 			return ovs
 		}
 	}
-	return ivs
+	return ovs
 }
 
 // DropWhile removes all values as long pred() returns true.
@@ -71,9 +60,7 @@ func DropWhile[V any](pred func(V) bool, ivs []V) []V {
 	if dropped == len(ivs)-1 {
 		return nil
 	}
-	ovs := make([]V, len(ivs)-dropped-1)
-	copy(ovs, ivs[dropped+1:])
-	return ovs
+	return Subslice(ivs, dropped+1, len(ivs)-1)
 }
 
 // Filter creates a slice from all values where pred() returns true.
@@ -155,11 +142,11 @@ func Split[V any](n int, ivs []V) ([]V, []V) {
 	case ivs == nil:
 		return nil, nil
 	case n < 0:
-		return nil, Copy(ivs, 0, n)
+		return nil, Copy(ivs)
 	case n >= len(ivs):
-		return Copy(ivs, 0, n), nil
+		return Copy(ivs), nil
 	}
-	return Copy(ivs, 0, n), Copy(ivs, n+1, len(ivs))
+	return Subslice(ivs, 0, n), Subslice(ivs, n+1, len(ivs)-1)
 }
 
 // SplitWith returns the values while pred() returns true as first and the rest
@@ -176,6 +163,58 @@ func SplitWith[V any](pred func(V) bool, ivs []V) ([]V, []V) {
 		n++
 	}
 	return Split(n, ivs)
+}
+
+// Subslice returns the values of slices from fpos to tpos as a new slice.
+// Negative fpos as well as too high tpos are allowed and will be limited.
+// Starting behind the slice or end before 0 returns nil.
+func Subslice[V any](ivs []V, fpos, tpos int) []V {
+	if ivs == nil || fpos > tpos {
+		return nil
+	}
+	if fpos < 0 {
+		fpos = 0
+	} else if fpos >= len(ivs) {
+		return nil
+	}
+	if tpos < 0 {
+		return nil
+	} else if tpos >= len(ivs) {
+		tpos = len(ivs) - 1
+	}
+	ovs := make([]V, tpos-fpos+1)
+	copy(ovs, ivs[fpos:tpos+1])
+	return ovs
+}
+
+// Subtract returns a new slice that is a copy of input slice, subjected to the following
+// procedure: for each element in the subtract slice, its first occurrence in the input
+// slice is deleted.
+func Subtract[V comparable](ivs, svs []V) []V {
+	if ivs == nil || svs == nil {
+		return ivs
+	}
+	ovs := Copy(ivs)
+	for _, sv := range svs {
+		ovs = Delete(sv, ovs)
+	}
+	return ovs
+}
+
+// TakeWhile copies all values as long pred() returns true.
+func TakeWhile[V any](pred func(V) bool, ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	taken := -1
+	for i, v := range ivs {
+		if pred(v) {
+			taken = i
+			continue
+		}
+		break
+	}
+	return Subslice(ivs, 0, taken)
 }
 
 // EOF

@@ -48,7 +48,7 @@ func TestAppend(t *testing.T) {
 		}, {
 			descr:  "No slices",
 			values: [][]int{},
-			out:    []int{},
+			out:    nil,
 		}, {
 			descr:  "Nil slice",
 			values: nil,
@@ -59,92 +59,6 @@ func TestAppend(t *testing.T) {
 	for _, test := range tests {
 		assert.Logf(test.descr)
 		assert.Equal(slices.Append(test.values...), test.out)
-	}
-}
-
-// TestCopy verifies the convenient copy of sections of slices into
-// new created slices.
-func TestCopy(t *testing.T) {
-	assert := asserts.NewTesting(t, asserts.FailStop)
-
-	tests := []struct {
-		descr      string
-		values     []int
-		fpos, tpos int
-		out        []int
-	}{
-		{
-			descr:  "Copy total slice",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   0,
-			tpos:   4,
-			out:    []int{1, 2, 3, 4, 5},
-		}, {
-			descr:  "Copy subslice from insert of slice",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   1,
-			tpos:   3,
-			out:    []int{2, 3, 4},
-		}, {
-			descr:  "Copy from beginning",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   0,
-			tpos:   2,
-			out:    []int{1, 2, 3},
-		}, {
-			descr:  "Copy till ending",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   2,
-			tpos:   4,
-			out:    []int{3, 4, 5},
-		}, {
-			descr:  "Copy from before beginning",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   -9,
-			tpos:   2,
-			out:    []int{1, 2, 3},
-		}, {
-			descr:  "Copy till after ending",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   2,
-			tpos:   9,
-			out:    []int{3, 4, 5},
-		}, {
-			descr:  "Copy with fpos higher than tpos",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   3,
-			tpos:   1,
-			out:    nil,
-		}, {
-			descr:  "Copy from before slice",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   -9,
-			tpos:   -1,
-			out:    nil,
-		}, {
-			descr:  "Copy from behind slice",
-			values: []int{1, 2, 3, 4, 5},
-			fpos:   11,
-			tpos:   13,
-			out:    nil,
-		}, {
-			descr:  "Copy from empty slice",
-			values: []int{},
-			fpos:   1,
-			tpos:   3,
-			out:    nil,
-		}, {
-			descr:  "Copy from nil slice",
-			values: nil,
-			fpos:   1,
-			tpos:   3,
-			out:    nil,
-		},
-	}
-
-	for _, test := range tests {
-		assert.Logf(test.descr)
-		assert.Equal(slices.Copy(test.values, test.fpos, test.tpos), test.out)
 	}
 }
 
@@ -471,7 +385,7 @@ func TestSplit(t *testing.T) {
 			descr:  "Split an empty slice",
 			n:      0,
 			values: []int{},
-			lout:   nil,
+			lout:   []int{},
 			rout:   nil,
 		}, {
 			descr:  "Split a nil slice",
@@ -510,10 +424,10 @@ func TestSplitWith(t *testing.T) {
 			rout:   []int{4, 5},
 		}, {
 			descr:  "Split slice in the beginning",
-			pred:   func(v int) bool { return v == 1 },
-			values: []int{1, 2, 3, 4, 5},
-			lout:   []int{1},
-			rout:   []int{2, 3, 4, 5},
+			pred:   func(v int) bool { return v != 1 },
+			values: []int{1, 3, 2, 4, 5, 1, 2},
+			lout:   nil,
+			rout:   []int{1, 3, 2, 4, 5, 1, 2},
 		}, {
 			descr:  "Split slice in the end",
 			pred:   func(v int) bool { return v < 6 },
@@ -546,6 +460,205 @@ func TestSplitWith(t *testing.T) {
 		lout, rout := slices.SplitWith(test.pred, test.values)
 		assert.Equal(lout, test.lout)
 		assert.Equal(rout, test.rout)
+	}
+}
+
+// TestSubslice verifies the convenient retrieval of sections of slices into
+// new created slices.
+func TestSubsclice(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr      string
+		values     []int
+		fpos, tpos int
+		out        []int
+	}{
+		{
+			descr:  "Copy total slice",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   0,
+			tpos:   4,
+			out:    []int{1, 2, 3, 4, 5},
+		}, {
+			descr:  "Copy subslice from insert of slice",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   1,
+			tpos:   3,
+			out:    []int{2, 3, 4},
+		}, {
+			descr:  "Copy from beginning",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   0,
+			tpos:   2,
+			out:    []int{1, 2, 3},
+		}, {
+			descr:  "Copy till ending",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   2,
+			tpos:   4,
+			out:    []int{3, 4, 5},
+		}, {
+			descr:  "Copy from before beginning",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   -9,
+			tpos:   2,
+			out:    []int{1, 2, 3},
+		}, {
+			descr:  "Copy till after ending",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   2,
+			tpos:   9,
+			out:    []int{3, 4, 5},
+		}, {
+			descr:  "Copy with fpos higher than tpos",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   3,
+			tpos:   1,
+			out:    nil,
+		}, {
+			descr:  "Copy from before slice",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   -9,
+			tpos:   -1,
+			out:    nil,
+		}, {
+			descr:  "Copy from behind slice",
+			values: []int{1, 2, 3, 4, 5},
+			fpos:   11,
+			tpos:   13,
+			out:    nil,
+		}, {
+			descr:  "Copy from empty slice",
+			values: []int{},
+			fpos:   1,
+			tpos:   3,
+			out:    nil,
+		}, {
+			descr:  "Copy from nil slice",
+			values: nil,
+			fpos:   1,
+			tpos:   3,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Subslice(test.values, test.fpos, test.tpos), test.out)
+	}
+}
+
+// TestSubtract ...
+func TestSubtract(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr    string
+		values   []int
+		subtract []int
+		out      []int
+	}{
+		{
+			descr:    "Subtract of random and multiple values",
+			values:   []int{1, 2, 3, 2, 4, 5, 1, 2},
+			subtract: []int{2, 1, 2},
+			out:      []int{3, 4, 5, 1, 2},
+		}, {
+			descr:    "Subtract of first values",
+			values:   []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			subtract: []int{3, 2, 1},
+			out:      []int{4, 5, 6, 7, 8, 9},
+		}, {
+			descr:    "Subtract of last values",
+			values:   []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			subtract: []int{7, 8, 9},
+			out:      []int{1, 2, 3, 4, 5, 6},
+		}, {
+			descr:    "Subtract value more than existing",
+			values:   []int{1, 2, 3, 4, 3, 2, 1, 2, 3},
+			subtract: []int{1, 1, 1, 1},
+			out:      []int{2, 3, 4, 3, 2, 2, 3},
+		}, {
+			descr:    "Subtract of not existing values",
+			values:   []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			subtract: []int{0, 0, 0},
+			out:      []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		}, {
+			descr:    "Subtract of an empty slice",
+			values:   []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			subtract: []int{},
+			out:      []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		}, {
+			descr:    "Subtract of a nil slice",
+			values:   []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			subtract: nil,
+			out:      []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		}, {
+			descr:    "Subtract from an empty slice",
+			values:   []int{},
+			subtract: []int{3, 2, 1},
+			out:      []int{},
+		}, {
+			descr:    "Subtract from a nil slice",
+			values:   nil,
+			subtract: []int{3, 2, 1},
+			out:      nil,
+		}, {
+			descr:    "Subtract nil from a nil slice",
+			values:   nil,
+			subtract: nil,
+			out:      nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Subtract(test.values, test.subtract), test.out)
+	}
+}
+
+// TestTakeWhile verifies the copying of the slice values as long
+// as a test returns true.
+func TestTakeWhile(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	taker := func(v int) bool { return v <= 5 }
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Longer slice with one stopper",
+			values: []int{1, 2, 3, 4, 5, 6, 5, 4, 3},
+			out:    []int{1, 2, 3, 4, 5},
+		}, {
+			descr:  "Longer slice without taking",
+			values: []int{6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
+			out:    nil,
+		}, {
+			descr:  "Single value slice with taking",
+			values: []int{0},
+			out:    []int{0},
+		}, {
+			descr:  "Single value slice without taking",
+			values: []int{9},
+			out:    nil,
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    nil,
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.TakeWhile(taker, test.values), test.out)
 	}
 }
 
