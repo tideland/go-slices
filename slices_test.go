@@ -12,7 +12,6 @@ package slices_test // import "tideland.dev/go/slices"
 //--------------------
 
 import (
-	"fmt"
 	"testing"
 
 	"tideland.dev/go/audit/asserts"
@@ -211,21 +210,47 @@ func TestFilter(t *testing.T) {
 func TestFilterMap(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	all := []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9}
-	evenMap := func(v int) (string, bool) {
-		if v%2 == 0 {
-			return fmt.Sprintf("%v", v), true
-		}
-		return "", false
+	filterMapper := func(v int) (int, bool) { return v * 10, v%2 == 0 }
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Many values, some filtered, rest mapped",
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    []int{20, 40, 60, 80},
+		}, {
+			descr:  "Many values, none filtered, all mapped",
+			values: []int{2, 4, 6, 8, 10},
+			out:    []int{20, 40, 60, 80, 100},
+		}, {
+			descr:  "Many values, all filtered",
+			values: []int{1, 3, 5, 7, 11},
+			out:    []int{},
+		}, {
+			descr:  "One value, not filtered but mapped",
+			values: []int{2},
+			out:    []int{20},
+		}, {
+			descr:  "One value, filtered",
+			values: []int{1},
+			out:    []int{},
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
 	}
-	even := []string{"2", "4", "6", "8"}
-	noneMap := func(v int) (bool, bool) {
-		return false, false
-	}
-	none := []bool{}
 
-	assert.Equal(slices.FilterMap(evenMap, all), even)
-	assert.Equal(slices.FilterMap(noneMap, all), none)
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.FilterMap(filterMapper, test.values), test.out)
+	}
 }
 
 // TestJoin verifies the joining of a separator value and the slice values.
