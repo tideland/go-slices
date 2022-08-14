@@ -97,6 +97,11 @@ func TestDelete(t *testing.T) {
 			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
 			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
 		}, {
+			descr:  "Delete only value",
+			value:  1,
+			values: []int{1},
+			out:    []int{},
+		}, {
 			descr:  "Delete in empty input",
 			value:  1,
 			values: []int{},
@@ -112,6 +117,145 @@ func TestDelete(t *testing.T) {
 	for _, test := range tests {
 		assert.Logf(test.descr)
 		assert.Equal(slices.Delete(test.value, test.values), test.out)
+	}
+}
+
+// TestDeleteWith verifies the deleting of a first matching value of a
+// slice where pred returns true.
+func TestDeleteWith(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	shallDelete := func(v int) bool { return v == 10 }
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Delete first",
+			values: []int{10, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete last",
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete single value",
+			values: []int{1, 2, 3, 4, 5, 10, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete one of double",
+			values: []int{1, 2, 3, 4, 10, 10, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 10, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete uncontained value",
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete only value",
+			values: []int{10},
+			out:    []int{},
+		}, {
+			descr:  "Delete in empty input",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Delete in nil input",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.DeleteWith(shallDelete, test.values), test.out)
+	}
+}
+
+// TestDeleteAll verifies the deleting of all matching values of a slice.
+func TestDeleteAll(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	value := 5
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Delete single value",
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete multiple values",
+			values: []int{1, 2, 5, 3, 4, 5, 5, 5, 5, 6, 7, 5, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete uncontained values",
+			values: []int{1, 2, 3, 4, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete all values",
+			values: []int{5, 5, 5, 5, 5},
+			out:    []int{},
+		}, {
+			descr:  "Delete in empty input",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Delete in nil input",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.DeleteAll(value, test.values), test.out)
+	}
+}
+
+// TestDeleteAllWith verifies the deleting of all matching values of a
+// slice where pred returns true.
+func TestDeleteAllWith(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	shallDelete := func(v int) bool { return v == 5 }
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Delete single value",
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete multiple values",
+			values: []int{1, 2, 5, 3, 4, 5, 5, 5, 5, 6, 7, 5, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete uncontained values",
+			values: []int{1, 2, 3, 4, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete all values",
+			values: []int{5, 5, 5, 5, 5},
+			out:    []int{},
+		}, {
+			descr:  "Delete in empty input",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Delete in nil input",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.DeleteAllWith(shallDelete, test.values), test.out)
 	}
 }
 

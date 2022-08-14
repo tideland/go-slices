@@ -32,13 +32,53 @@ func Copy[V any](ivs []V) []V {
 	return ovs
 }
 
-// Delete removes the first matching value of the slice.
-func Delete[V comparable](v V, ivs []V) []V {
+// Delete removes the first matching value of a slice.
+func Delete[V comparable](dv V, ivs []V) []V {
 	ovs := Copy(ivs)
-	for i := range ivs {
-		if ovs[i] == v {
+	for i := range ovs {
+		if ovs[i] == dv {
 			ovs = append(ovs[:i], ovs[i+1:]...)
 			return ovs
+		}
+	}
+	return ovs
+}
+
+// DeleteWith removes the first value of a slice where pred returns true.
+func DeleteWith[V any](pred func(V) bool, ivs []V) []V {
+	ovs := Copy(ivs)
+	for i := range ovs {
+		if pred(ovs[i]) {
+			ovs = append(ovs[:i], ovs[i+1:]...)
+			return ovs
+		}
+	}
+	return ovs
+}
+
+// DeleteAll removes all matching valus of a slice.
+func DeleteAll[V comparable](dv V, ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	var ovs []V = []V{}
+	for _, v := range ivs {
+		if v != dv {
+			ovs = append(ovs, v)
+		}
+	}
+	return ovs
+}
+
+// DeleteAllWith removes all matching valus of a slice where pred returns true.
+func DeleteAllWith[V any](pred func(V) bool, ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	var ovs []V = []V{}
+	for _, v := range ivs {
+		if !pred(v) {
+			ovs = append(ovs, v)
 		}
 	}
 	return ovs
