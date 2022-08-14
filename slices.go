@@ -70,6 +70,20 @@ func DeleteAll[V comparable](dv V, ivs []V) []V {
 	return ovs
 }
 
+// DeleteAllWith removes all matching valus of a slice where pred returns true.
+func DeleteAllWith[V any](pred func(V) bool, ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	var ovs []V = []V{}
+	for _, v := range ivs {
+		if !pred(v) {
+			ovs = append(ovs, v)
+		}
+	}
+	return ovs
+}
+
 // DropWhile removes all values as long pred() returns true.
 func DropWhile[V any](pred func(V) bool, ivs []V) []V {
 	if ivs == nil {

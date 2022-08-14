@@ -176,40 +176,34 @@ func TestDeleteWith(t *testing.T) {
 func TestDeleteAll(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
+	value := 5
 	tests := []struct {
 		descr  string
-		value  int
 		values []int
 		out    []int
 	}{
 		{
 			descr:  "Delete single value",
-			value:  2,
-			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
-			out:    []int{1, 3, 4, 5, 5, 6, 7, 8, 9},
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
 		}, {
 			descr:  "Delete multiple values",
-			value:  5,
-			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			values: []int{1, 2, 5, 3, 4, 5, 5, 5, 5, 6, 7, 5, 8, 9},
 			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
 		}, {
 			descr:  "Delete uncontained values",
-			value:  10,
-			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
-			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			values: []int{1, 2, 3, 4, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
 		}, {
 			descr:  "Delete all values",
-			value:  1,
-			values: []int{1, 1, 1, 1, 1},
+			values: []int{5, 5, 5, 5, 5},
 			out:    []int{},
 		}, {
 			descr:  "Delete in empty input",
-			value:  1,
 			values: []int{},
 			out:    []int{},
 		}, {
 			descr:  "Delete in nil input",
-			value:  1,
 			values: nil,
 			out:    nil,
 		},
@@ -217,7 +211,51 @@ func TestDeleteAll(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.DeleteAll(test.value, test.values), test.out)
+		assert.Equal(slices.DeleteAll(value, test.values), test.out)
+	}
+}
+
+// TestDeleteAllWith verifies the deleting of all matching values of a
+// slice where pred returns true.
+func TestDeleteAllWith(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	shallDelete := func(v int) bool { return v == 5 }
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Delete single value",
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete multiple values",
+			values: []int{1, 2, 5, 3, 4, 5, 5, 5, 5, 6, 7, 5, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete uncontained values",
+			values: []int{1, 2, 3, 4, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete all values",
+			values: []int{5, 5, 5, 5, 5},
+			out:    []int{},
+		}, {
+			descr:  "Delete in empty input",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Delete in nil input",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.DeleteAllWith(shallDelete, test.values), test.out)
 	}
 }
 
