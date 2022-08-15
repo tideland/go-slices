@@ -257,4 +257,21 @@ func TakeWhile[V any](pred func(V) bool, ivs []V) []V {
 	return Subslice(ivs, 0, taken)
 }
 
+// Unique returns a slice which contains each value only once. The second
+// and further values are deleted.
+func Unique[V comparable](ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	var ovs []V = []V{}
+	var isContained map[V]struct{} = map[V]struct{}{}
+	for _, v := range ivs {
+		if _, ok := isContained[v]; !ok {
+			ovs = append(ovs, v)
+			isContained[v] = struct{}{}
+		}
+	}
+	return ovs
+}
+
 // EOF

@@ -831,4 +831,50 @@ func TestTakeWhile(t *testing.T) {
 	}
 }
 
+// TestUnique verifies the unifying of a slice.
+func TestUnique(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Longer slice with one double value",
+			values: []int{1, 2, 3, 4, 5, 6, 5, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Longer slice with one multiple time value",
+			values: []int{1, 2, 5, 3, 5, 4, 5, 6, 5, 7, 8, 9},
+			out:    []int{1, 2, 5, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Longer slice with multiple multiple time values",
+			values: []int{1, 2, 5, 3, 4, 5, 4, 5, 6, 6, 5, 7, 7, 8, 7, 9},
+			out:    []int{1, 2, 5, 3, 4, 6, 7, 8, 9},
+		}, {
+			descr:  "Longer slice without any double value",
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Single value slice",
+			values: []int{0},
+			out:    []int{0},
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Unique(test.values), test.out)
+	}
+}
+
 // EOF
