@@ -718,7 +718,7 @@ func TestSubsclice(t *testing.T) {
 	}
 }
 
-// TestSubtract ...
+// TestSubtract verifies the subtracting of values froma a slice.
 func TestSubtract(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
@@ -857,6 +857,10 @@ func TestUnique(t *testing.T) {
 			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
 			out:    []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
 		}, {
+			descr:  "Longer slice only with double values",
+			values: []int{1, 1, 1, 1, 1, 1, 1, 1, 1},
+			out:    []int{1},
+		}, {
 			descr:  "Single value slice",
 			values: []int{0},
 			out:    []int{0},
@@ -874,6 +878,63 @@ func TestUnique(t *testing.T) {
 	for _, test := range tests {
 		assert.Logf(test.descr)
 		assert.Equal(slices.Unique(test.values), test.out)
+	}
+}
+
+// TestUnique verifies the unifying of a slice.
+func TestUniqueWith(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	type foo struct {
+		key   string
+		value int
+	}
+	fookey := func(f foo) string { return f.key }
+
+	tests := []struct {
+		descr  string
+		values []foo
+		out    []foo
+	}{
+		{
+			descr:  "Longer slice with one double value",
+			values: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}},
+			out:    []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
+		}, {
+			descr:  "Longer slice with one multiple time value",
+			values: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}, {"three", 3}},
+			out:    []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
+		}, {
+			descr: "Longer slice with multiple multiple time values",
+			values: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}, {"three", 3},
+				{"two", 2}, {"three", 3}, {"four", 4}, {"one", 1}},
+			out: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
+		}, {
+			descr:  "Longer slice without any double values",
+			values: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}},
+			out:    []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}},
+		}, {
+			descr:  "Longer slice ony with double values/keys",
+			values: []foo{{"one", 1}, {"one", 2}, {"one", 3}, {"one", 4}, {"one", 5}},
+			out:    []foo{{"one", 1}},
+		}, {
+			descr:  "Single value slice",
+			values: []foo{{"one", 1}},
+			out:    []foo{{"one", 1}},
+		}, {
+			descr:  "Empty slice",
+			values: []foo{},
+			out:    []foo{},
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.UniqueWith(fookey, test.values), test.out)
 	}
 }
 

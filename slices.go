@@ -274,4 +274,23 @@ func Unique[V comparable](ivs []V) []V {
 	return ovs
 }
 
+// UniqueWith returns a slice which contains each pred returned value only once.
+// The second and further values are deleted. The returned value could be a
+// e.g. field of a struct.
+func UniqueWith[V any, C comparable](pred func(V) C, ivs []V) []V {
+	if ivs == nil {
+		return nil
+	}
+	var ovs []V = []V{}
+	var isContained map[C]struct{} = map[C]struct{}{}
+	for _, v := range ivs {
+		cv := pred(v)
+		if _, ok := isContained[cv]; !ok {
+			ovs = append(ovs, v)
+			isContained[cv] = struct{}{}
+		}
+	}
+	return ovs
+}
+
 // EOF
