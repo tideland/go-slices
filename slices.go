@@ -8,6 +8,10 @@
 package slices // import "tideland.dev/go/slices"
 
 //--------------------
+// IMPORTS
+//--------------------
+
+//--------------------
 // SLICES
 //--------------------
 
@@ -61,7 +65,7 @@ func DeleteAll[V comparable](dv V, ivs []V) []V {
 	if ivs == nil {
 		return nil
 	}
-	var ovs []V = []V{}
+	ovs := []V{}
 	for _, v := range ivs {
 		if v != dv {
 			ovs = append(ovs, v)
@@ -75,7 +79,7 @@ func DeleteAllWith[V any](pred func(V) bool, ivs []V) []V {
 	if ivs == nil {
 		return nil
 	}
-	var ovs []V = []V{}
+	ovs := []V{}
 	for _, v := range ivs {
 		if !pred(v) {
 			ovs = append(ovs, v)
@@ -192,7 +196,7 @@ func Split[V any](n int, ivs []V) ([]V, []V) {
 // SplitWith returns the values while pred() returns true as first and the rest
 // as second slice.
 func SplitWith[V any](pred func(V) bool, ivs []V) ([]V, []V) {
-	if ivs == nil || len(ivs) == 0 {
+	if len(ivs) == 0 {
 		return nil, nil
 	}
 	n := -1
@@ -263,8 +267,8 @@ func Unique[V comparable](ivs []V) []V {
 	if ivs == nil {
 		return nil
 	}
-	var ovs []V = []V{}
-	var isContained map[V]struct{} = map[V]struct{}{}
+	ovs := []V{}
+	isContained := map[V]struct{}{}
 	for _, v := range ivs {
 		if _, ok := isContained[v]; !ok {
 			ovs = append(ovs, v)
@@ -281,8 +285,8 @@ func UniqueWith[V any, C comparable](pred func(V) C, ivs []V) []V {
 	if ivs == nil {
 		return nil
 	}
-	var ovs []V = []V{}
-	var isContained map[C]struct{} = map[C]struct{}{}
+	ovs := []V{}
+	isContained := map[C]struct{}{}
 	for _, v := range ivs {
 		cv := pred(v)
 		if _, ok := isContained[cv]; !ok {

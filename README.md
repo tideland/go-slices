@@ -11,7 +11,9 @@
 
 **Tideland Go Slices** provides a set of functions for the processing of types slices based
 on generics and higher-order functions. This processing contains tests, mappings, filterings,
-concatings, deleting, filtering, folding and many more.
+concatings, deleting, filtering, folding and many more. Opposite to the standard library of
+Go with similiar functions like e.g. Sort() will not work on the same slice. All functions return
+new slices, even if a variable operation would have no effect.
 
 ## Contributors
 
