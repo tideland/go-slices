@@ -7,6 +7,10 @@
 
 package slices // import "tideland.dev/go/slices"
 
+//--------------------
+// IMPORTS
+//--------------------
+
 import (
 	"runtime"
 
@@ -24,13 +28,13 @@ func Sort[V constraints.Ordered](ivs []V) []V {
 		return vs[i] < vs[j]
 	}
 
-	return SortWith(ivs, less)
+	return SortWith(less, ivs)
 }
 
 // SortWith sorts a slice based on a less function comparing the two values
 // at the indexes i and j and returning true if the value at i has to be sorted
 // before the one at j.
-func SortWith[V any](ivs []V, less func(vs []V, i, j int) bool) []V {
+func SortWith[V any](less func(vs []V, i, j int) bool, ivs []V) []V {
 	ovs := Copy(ivs)
 
 	sort(ovs, less)
@@ -50,7 +54,7 @@ func IsSorted[V constraints.Ordered](vs []V) bool {
 
 // IsSortedWith returns true if a slice is sorted in ascending order
 // using less as comparison function.
-func IsSortedWith[V any](vs []V, less func(a, b V) bool) bool {
+func IsSortedWith[V any](less func(a, b V) bool, vs []V) bool {
 	for i := len(vs) - 1; i > 0; i-- {
 		if less(vs[i], vs[i-1]) {
 			return false

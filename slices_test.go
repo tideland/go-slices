@@ -215,50 +215,6 @@ func TestDeleteAll(t *testing.T) {
 	}
 }
 
-// TestDeleteAllWith verifies the deleting of all matching values of a
-// slice where pred returns true.
-func TestDeleteAllWith(t *testing.T) {
-	assert := asserts.NewTesting(t, asserts.FailStop)
-
-	shallDelete := func(v int) bool { return v == 5 }
-	tests := []struct {
-		descr  string
-		values []int
-		out    []int
-	}{
-		{
-			descr:  "Delete single value",
-			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
-			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
-		}, {
-			descr:  "Delete multiple values",
-			values: []int{1, 2, 5, 3, 4, 5, 5, 5, 5, 6, 7, 5, 8, 9},
-			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
-		}, {
-			descr:  "Delete uncontained values",
-			values: []int{1, 2, 3, 4, 6, 7, 8, 9},
-			out:    []int{1, 2, 3, 4, 6, 7, 8, 9},
-		}, {
-			descr:  "Delete all values",
-			values: []int{5, 5, 5, 5, 5},
-			out:    []int{},
-		}, {
-			descr:  "Delete in empty input",
-			values: []int{},
-			out:    []int{},
-		}, {
-			descr:  "Delete in nil input",
-			values: nil,
-			out:    nil,
-		},
-	}
-
-	for _, test := range tests {
-		assert.Logf(test.descr)
-		assert.Equal(slices.DeleteAllWith(shallDelete, test.values), test.out)
-	}
-}
-
 // TestDropWhile verifies the dropping of the slice elements as long
 // as a test returns true.
 func TestDropWhile(t *testing.T) {
