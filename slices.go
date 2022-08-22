@@ -28,7 +28,7 @@ func Append[V any](ivss ...[]V) []V {
 
 // ContainsAll returns true if the function pred() returns true for all
 // values of the slice.
-func ContainsAll[V any](pred func(v V) bool, ivs []V) bool {
+func ContainsAll[V any](ivs []V, pred func(v V) bool) bool {
 	for _, v := range ivs {
 		if !pred(v) {
 			return false
@@ -39,7 +39,7 @@ func ContainsAll[V any](pred func(v V) bool, ivs []V) bool {
 
 // ContainsAny returns true if the function pred() returns true for at least
 // one value of the slice.
-func ContainsAny[V any](pred func(v V) bool, ivs []V) bool {
+func ContainsAny[V any](ivs []V, pred func(v V) bool) bool {
 	for _, v := range ivs {
 		if pred(v) {
 			return true
@@ -71,7 +71,7 @@ func Delete[V comparable](dv V, ivs []V) []V {
 }
 
 // DeleteWith removes the first value of a slice where pred returns true.
-func DeleteWith[V any](pred func(V) bool, ivs []V) []V {
+func DeleteWith[V any](ivs []V, pred func(V) bool) []V {
 	ovs := Copy(ivs)
 	for i := range ovs {
 		if pred(ovs[i]) {
@@ -97,7 +97,7 @@ func DeleteAll[V comparable](dv V, ivs []V) []V {
 }
 
 // DropWhile removes all values as long pred() returns true.
-func DropWhile[V any](pred func(V) bool, ivs []V) []V {
+func DropWhile[V any](ivs []V, pred func(V) bool) []V {
 	if ivs == nil {
 		return nil
 	}
@@ -116,7 +116,7 @@ func DropWhile[V any](pred func(V) bool, ivs []V) []V {
 }
 
 // Filter creates a slice from all values where pred() returns true.
-func Filter[V any](pred func(V) bool, ivs []V) []V {
+func Filter[V any](ivs []V, pred func(V) bool) []V {
 	if ivs == nil {
 		return nil
 	}
@@ -131,7 +131,7 @@ func Filter[V any](pred func(V) bool, ivs []V) []V {
 
 // FilterMap creates a slice from of new values created by fun() where
 // it also returns true.
-func FilterMap[I, O any](fun func(I) (O, bool), ivs []I) []O {
+func FilterMap[I, O any](ivs []I, fun func(I) (O, bool)) []O {
 	if ivs == nil {
 		return nil
 	}
@@ -159,9 +159,9 @@ func IsEqual[V comparable](first, second []V) bool {
 
 // IsMember returns true if the slice contains the value v.
 func IsMember[V comparable](v V, ivs []V) bool {
-	return ContainsAny(func(iv V) bool {
+	return ContainsAny(ivs, func(iv V) bool {
 		return iv == v
-	}, ivs)
+	})
 }
 
 // IsPrefix returns true if the first slice is the prefix of the second one.
@@ -209,7 +209,7 @@ func Join[V any](sep V, ivs []V) []V {
 
 // Map creates a slice of output values from the input values and converted
 // by the map function.
-func Map[I, O any](fun func(I) O, ivs []I) []O {
+func Map[I, O any](ivs []I, fun func(I) O) []O {
 	if ivs == nil {
 		return nil
 	}
@@ -250,7 +250,7 @@ func Split[V any](n int, ivs []V) ([]V, []V) {
 
 // SplitWith returns the values while pred() returns true as first and the rest
 // as second slice.
-func SplitWith[V any](pred func(V) bool, ivs []V) ([]V, []V) {
+func SplitWith[V any](ivs []V, pred func(V) bool) ([]V, []V) {
 	if len(ivs) == 0 {
 		return nil, nil
 	}
@@ -301,7 +301,7 @@ func Subtract[V comparable](ivs, svs []V) []V {
 }
 
 // TakeWhile copies all values as long pred() returns true.
-func TakeWhile[V any](pred func(V) bool, ivs []V) []V {
+func TakeWhile[V any](ivs []V, pred func(V) bool) []V {
 	if ivs == nil {
 		return nil
 	}
@@ -336,7 +336,7 @@ func Unique[V comparable](ivs []V) []V {
 // UniqueWith returns a slice which contains each pred returned value only once.
 // The second and further values are deleted. The returned value could be a
 // e.g. field of a struct.
-func UniqueWith[V any, C comparable](pred func(V) C, ivs []V) []V {
+func UniqueWith[V any, C comparable](ivs []V, pred func(V) C) []V {
 	if ivs == nil {
 		return nil
 	}

@@ -65,7 +65,7 @@ func TestAppend(t *testing.T) {
 func TestContainsAll(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	container := func(v int) bool { return v < 10 }
+	contains := func(v int) bool { return v < 10 }
 	tests := []struct {
 		descr  string
 		values []int
@@ -100,7 +100,7 @@ func TestContainsAll(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.ContainsAll(container, test.values), test.out)
+		assert.Equal(slices.ContainsAll(test.values, contains), test.out)
 	}
 }
 
@@ -109,7 +109,7 @@ func TestContainsAll(t *testing.T) {
 func TestContainsAny(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	container := func(v int) bool { return v < 3 }
+	contains := func(v int) bool { return v < 3 }
 	tests := []struct {
 		descr  string
 		values []int
@@ -144,7 +144,7 @@ func TestContainsAny(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.ContainsAny(container, test.values), test.out)
+		assert.Equal(slices.ContainsAny(test.values, contains), test.out)
 	}
 }
 
@@ -255,7 +255,7 @@ func TestDeleteWith(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.DeleteWith(shallDelete, test.values), test.out)
+		assert.Equal(slices.DeleteWith(test.values, shallDelete), test.out)
 	}
 }
 
@@ -307,7 +307,7 @@ func TestDeleteAll(t *testing.T) {
 func TestDropWhile(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	dropper := func(v int) bool { return v <= 5 }
+	shallDrop := func(v int) bool { return v <= 5 }
 	tests := []struct {
 		descr  string
 		values []int
@@ -342,7 +342,7 @@ func TestDropWhile(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.DropWhile(dropper, test.values), test.out)
+		assert.Equal(slices.DropWhile(test.values, shallDrop), test.out)
 	}
 }
 
@@ -389,7 +389,7 @@ func TestFilter(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.Filter(filter, test.values), test.out)
+		assert.Equal(slices.Filter(test.values, filter), test.out)
 	}
 }
 
@@ -397,7 +397,7 @@ func TestFilter(t *testing.T) {
 func TestFilterMap(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	filterMapper := func(v int) (int, bool) { return v * 10, v%2 == 0 }
+	filterMap := func(v int) (int, bool) { return v * 10, v%2 == 0 }
 	tests := []struct {
 		descr  string
 		values []int
@@ -436,7 +436,7 @@ func TestFilterMap(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.FilterMap(filterMapper, test.values), test.out)
+		assert.Equal(slices.FilterMap(test.values, filterMap), test.out)
 	}
 }
 
@@ -732,7 +732,7 @@ func TestMap(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.Map(mapper, test.values), test.out)
+		assert.Equal(slices.Map(test.values, mapper), test.out)
 	}
 }
 
@@ -881,7 +881,7 @@ func TestSplitWith(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		lout, rout := slices.SplitWith(test.pred, test.values)
+		lout, rout := slices.SplitWith(test.values, test.pred)
 		assert.Equal(lout, test.lout)
 		assert.Equal(rout, test.rout)
 	}
@@ -1047,7 +1047,7 @@ func TestSubtract(t *testing.T) {
 func TestTakeWhile(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	taker := func(v int) bool { return v <= 5 }
+	shallTake := func(v int) bool { return v <= 5 }
 	tests := []struct {
 		descr  string
 		values []int
@@ -1082,7 +1082,7 @@ func TestTakeWhile(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.TakeWhile(taker, test.values), test.out)
+		assert.Equal(slices.TakeWhile(test.values, shallTake), test.out)
 	}
 }
 
@@ -1189,7 +1189,7 @@ func TestUniqueWith(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.UniqueWith(fookey, test.values), test.out)
+		assert.Equal(slices.UniqueWith(test.values, fookey), test.out)
 	}
 }
 
