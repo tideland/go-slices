@@ -113,7 +113,7 @@ func TestSortWith(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.SortWith(less, test.values), test.out)
+		assert.Equal(slices.SortWith(test.values, less), test.out)
 	}
 }
 
@@ -198,7 +198,7 @@ func TestIsSortedWith(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.IsSortedWith(less, test.values), test.out)
+		assert.Equal(slices.IsSortedWith(test.values, less), test.out)
 	}
 }
 
@@ -220,7 +220,7 @@ func BenchmarkSortWith(b *testing.B) {
 	vs := gen.Words(10000)
 	less := func(vs []string, i, j int) bool { return len(vs[i]) < len(vs[j]) }
 
-	slices.SortWith(less, vs)
+	slices.SortWith(vs, less)
 }
 
 // FuzzSort runs a fuzz test on the standard sorting.
