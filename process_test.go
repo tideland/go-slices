@@ -56,7 +56,7 @@ func TestFoldL(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.FoldL(stringer, acc, test.values), test.out)
+		assert.Equal(slices.FoldL(test.values, acc, stringer), test.out)
 	}
 }
 
@@ -92,7 +92,7 @@ func TestFoldLFirst(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.FoldLFirst(potentiator, test.values), test.out)
+		assert.Equal(slices.FoldLFirst(test.values, potentiator), test.out)
 	}
 }
 
@@ -128,7 +128,7 @@ func TestFoldR(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.FoldR(stringer, acc, test.values), test.out)
+		assert.Equal(slices.FoldR(test.values, acc, stringer), test.out)
 	}
 }
 
@@ -163,7 +163,7 @@ func TestFoldRLast(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.FoldRLast(potentiator, test.values), test.out)
+		assert.Equal(slices.FoldRLast(test.values, potentiator), test.out)
 	}
 }
 
@@ -204,7 +204,7 @@ func MapFoldL(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		mapped, out := slices.MapFoldL(plusStringer, in, test.values)
+		mapped, out := slices.MapFoldL(test.values, in, plusStringer)
 		assert.Equal(mapped, test.mapped)
 		assert.Equal(out, test.out)
 	}
@@ -247,7 +247,7 @@ func TestMapFoldR(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		mapped, out := slices.MapFoldR(plusStringer, in, test.values)
+		mapped, out := slices.MapFoldR(test.values, in, plusStringer)
 		assert.Equal(mapped, test.mapped)
 		assert.Equal(out, test.out)
 	}
@@ -299,7 +299,7 @@ func TestPartition(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		satisfying, notSatisfying := slices.Partition(isMod, test.values)
+		satisfying, notSatisfying := slices.Partition(test.values, isMod)
 		assert.Equal(satisfying, test.satisfying)
 		assert.Equal(notSatisfying, test.notSatisfying)
 	}
