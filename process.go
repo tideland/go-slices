@@ -15,7 +15,7 @@ package slices // import "tideland.dev/go/slices"
 // each value passing the initial accumulator. The accumulator returned
 // by each function call is used as input at the next call. The last one will
 // be returned.
-func FoldL[V, Acc any](fun func(V, Acc) Acc, acc Acc, vs []V) Acc {
+func FoldL[V, Acc any](vs []V, acc Acc, fun func(V, Acc) Acc) Acc {
 	for _, v := range vs {
 		acc = fun(v, acc)
 	}
@@ -26,21 +26,21 @@ func FoldL[V, Acc any](fun func(V, Acc) Acc, acc Acc, vs []V) Acc {
 // each value passing the first value as accumulator. The accumulator returned
 // by each function call is used as input at the next call. The last one will be
 // returned.
-func FoldLFirst[V any](fun func(V, V) V, vs []V) V {
+func FoldLFirst[V any](vs []V, fun func(V, V) V) V {
 	var first V
 	if len(vs) == 0 {
 		// Return default value.
 		return first
 	}
 	first = vs[0]
-	return FoldL(fun, first, vs[1:])
+	return FoldL(vs[1:], first, fun)
 }
 
 // FoldR iterates over the slice from right to left. It calls fun() for
 // each value passing the initial accumulator. The accumulator returned
 // by each function call is used as input at the next call. The last one will be
 // returned.
-func FoldR[V, Acc any](fun func(V, Acc) Acc, acc Acc, vs []V) Acc {
+func FoldR[V, Acc any](vs []V, acc Acc, fun func(V, Acc) Acc) Acc {
 	for i := len(vs) - 1; i >= 0; i-- {
 		acc = fun(vs[i], acc)
 	}
@@ -51,18 +51,18 @@ func FoldR[V, Acc any](fun func(V, Acc) Acc, acc Acc, vs []V) Acc {
 // each value passing the last value as accumulator. The accumulator returned
 // by each function call is used as input at the next call. The last one will be
 // returned.
-func FoldRLast[V any](fun func(V, V) V, vs []V) V {
+func FoldRLast[V any](vs []V, fun func(V, V) V) V {
 	var last V
 	if len(vs) == 0 {
 		// Return default value.
 		return last
 	}
 	last = vs[len(vs)-1]
-	return FoldR(fun, last, vs[:len(vs)-1])
+	return FoldR(vs[:len(vs)-1], last, fun)
 }
 
 // MapFoldL combines the operations of Map() and FoldL() in one pass.
-func MapFoldL[I, O, Acc any](fun func(I, Acc) (O, Acc), acc Acc, ivs []I) ([]O, Acc) {
+func MapFoldL[I, O, Acc any](ivs []I, acc Acc, fun func(I, Acc) (O, Acc)) ([]O, Acc) {
 	var ov O
 	var ovs []O
 	if ivs != nil {
@@ -76,7 +76,7 @@ func MapFoldL[I, O, Acc any](fun func(I, Acc) (O, Acc), acc Acc, ivs []I) ([]O, 
 }
 
 // MapFoldR combines the operations of Map() and FoldR() in one pass.
-func MapFoldR[I, O, Acc any](fun func(I, Acc) (O, Acc), acc Acc, ivs []I) ([]O, Acc) {
+func MapFoldR[I, O, Acc any](ivs []I, acc Acc, fun func(I, Acc) (O, Acc)) ([]O, Acc) {
 	var ov O
 	var ovs []O
 	if ivs != nil {
@@ -92,7 +92,7 @@ func MapFoldR[I, O, Acc any](fun func(I, Acc) (O, Acc), acc Acc, ivs []I) ([]O, 
 // Partition checks all values of the slices and returns all where pred() returns
 // true in one slice and false in another one. Their individual ordering will be
 // the same of the original one.
-func Partition[V any](pred func(V) bool, vs []V) ([]V, []V) {
+func Partition[V any](vs []V, pred func(V) bool) ([]V, []V) {
 	var satisfying []V
 	var notSatisfying []V
 	for _, v := range vs {
