@@ -207,58 +207,6 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-// TestDeleteWith verifies the deleting of a first matching value of a
-// slice where pred returns true.
-func TestDeleteWith(t *testing.T) {
-	assert := asserts.NewTesting(t, asserts.FailStop)
-
-	shallDelete := func(v int) bool { return v == 10 }
-	tests := []struct {
-		descr  string
-		values []int
-		out    []int
-	}{
-		{
-			descr:  "Delete first",
-			values: []int{10, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
-			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
-		}, {
-			descr:  "Delete last",
-			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10},
-			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
-		}, {
-			descr:  "Delete single value",
-			values: []int{1, 2, 3, 4, 5, 10, 5, 6, 7, 8, 9},
-			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
-		}, {
-			descr:  "Delete one of double",
-			values: []int{1, 2, 3, 4, 10, 10, 6, 7, 8, 9},
-			out:    []int{1, 2, 3, 4, 10, 6, 7, 8, 9},
-		}, {
-			descr:  "Delete uncontained value",
-			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
-			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
-		}, {
-			descr:  "Delete only value",
-			values: []int{10},
-			out:    []int{},
-		}, {
-			descr:  "Delete in empty input",
-			values: []int{},
-			out:    []int{},
-		}, {
-			descr:  "Delete in nil input",
-			values: nil,
-			out:    nil,
-		},
-	}
-
-	for _, test := range tests {
-		assert.Logf(test.descr)
-		assert.Equal(slices.DeleteWith(test.values, shallDelete), test.out)
-	}
-}
-
 // TestDeleteAll verifies the deleting of all matching values of a slice.
 func TestDeleteAll(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
@@ -349,9 +297,77 @@ func TestDeleteAllWith(t *testing.T) {
 	}
 }
 
-// TestDropWhile verifies the dropping of the slice elements as long
+// TestDeleteFirst verifies the deleting of the first slice value.
+func TestDeleteFirst(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Longer slice",
+			values: []int{1, 2, 3, 4, 5},
+			out:    []int{2, 3, 4, 5},
+		}, {
+			descr:  "Single value slice",
+			values: []int{1},
+			out:    nil,
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    nil,
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.DeleteFirst(test.values), test.out)
+	}
+}
+
+// TestDeleteLast verifies the deleting of the last slice value.
+func TestDeleteLast(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Longer slice",
+			values: []int{1, 2, 3, 4, 5},
+			out:    []int{1, 2, 3, 4},
+		}, {
+			descr:  "Single value slice",
+			values: []int{1},
+			out:    nil,
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			out:    nil,
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.DeleteLast(test.values), test.out)
+	}
+}
+
+// TestDeleteWhile verifies the deleting of the slice elements as long
 // as a test returns true.
-func TestDropWhile(t *testing.T) {
+func TestDeleteWhile(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
 	shallDrop := func(v int) bool { return v <= 5 }
@@ -389,7 +405,59 @@ func TestDropWhile(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.DropWhile(test.values, shallDrop), test.out)
+		assert.Equal(slices.DeleteWhile(test.values, shallDrop), test.out)
+	}
+}
+
+// TestDeleteWith verifies the deleting of a first matching value of a
+// slice where pred returns true.
+func TestDeleteWith(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	shallDelete := func(v int) bool { return v == 10 }
+	tests := []struct {
+		descr  string
+		values []int
+		out    []int
+	}{
+		{
+			descr:  "Delete first",
+			values: []int{10, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete last",
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete single value",
+			values: []int{1, 2, 3, 4, 5, 10, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete one of double",
+			values: []int{1, 2, 3, 4, 10, 10, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 10, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete uncontained value",
+			values: []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+			out:    []int{1, 2, 3, 4, 5, 5, 6, 7, 8, 9},
+		}, {
+			descr:  "Delete only value",
+			values: []int{10},
+			out:    []int{},
+		}, {
+			descr:  "Delete in empty input",
+			values: []int{},
+			out:    []int{},
+		}, {
+			descr:  "Delete in nil input",
+			values: nil,
+			out:    nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.DeleteWith(test.values, shallDelete), test.out)
 	}
 }
 

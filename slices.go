@@ -70,18 +70,6 @@ func Delete[V comparable](dv V, ivs []V) []V {
 	return ovs
 }
 
-// DeleteWith removes the first value of a slice where pred returns true.
-func DeleteWith[V any](ivs []V, pred func(V) bool) []V {
-	ovs := Copy(ivs)
-	for i := range ovs {
-		if pred(ovs[i]) {
-			ovs = append(ovs[:i], ovs[i+1:]...)
-			return ovs
-		}
-	}
-	return ovs
-}
-
 // DeleteAll removes all matching valus of a slice.
 func DeleteAll[V comparable](dv V, ivs []V) []V {
 	if ivs == nil {
@@ -105,8 +93,18 @@ func DeleteAllWith[V any](ivs []V, pred func(V) bool) []V {
 	return nsvs
 }
 
-// DropWhile removes all values as long pred() returns true.
-func DropWhile[V any](ivs []V, pred func(V) bool) []V {
+// DeleteFirst removes the first value of a slice.
+func DeleteFirst[V any](ivs []V) []V {
+	return Subslice(ivs, 1, len(ivs)-1)
+}
+
+// DeleteLast removes the last value of a slice.
+func DeleteLast[V any](ivs []V) []V {
+	return Subslice(ivs, 0, len(ivs)-2)
+}
+
+// DeleteWhile removes all values as long pred() returns true.
+func DeleteWhile[V any](ivs []V, pred func(V) bool) []V {
 	if ivs == nil {
 		return nil
 	}
@@ -122,6 +120,18 @@ func DropWhile[V any](ivs []V, pred func(V) bool) []V {
 		return nil
 	}
 	return Subslice(ivs, dropped+1, len(ivs)-1)
+}
+
+// DeleteWith removes the first value of a slice where pred returns true.
+func DeleteWith[V any](ivs []V, pred func(V) bool) []V {
+	ovs := Copy(ivs)
+	for i := range ovs {
+		if pred(ovs[i]) {
+			ovs = append(ovs[:i], ovs[i+1:]...)
+			return ovs
+		}
+	}
+	return ovs
 }
 
 // Filter creates a slice from all values where pred() returns true.
