@@ -96,6 +96,15 @@ func DeleteAll[V comparable](dv V, ivs []V) []V {
 	return ovs
 }
 
+// DeleteAllWith removes all values of a slice where pred returns true.
+func DeleteAllWith[V any](ivs []V, pred func(V) bool) []V {
+	_, nsvs := Partition(ivs, pred)
+	if nsvs == nil && ivs != nil {
+		return []V{}
+	}
+	return nsvs
+}
+
 // DropWhile removes all values as long pred() returns true.
 func DropWhile[V any](ivs []V, pred func(V) bool) []V {
 	if ivs == nil {
@@ -117,16 +126,11 @@ func DropWhile[V any](ivs []V, pred func(V) bool) []V {
 
 // Filter creates a slice from all values where pred() returns true.
 func Filter[V any](ivs []V, pred func(V) bool) []V {
-	if ivs == nil {
-		return nil
+	svs, _ := Partition(ivs, pred)
+	if svs == nil && ivs != nil {
+		return []V{}
 	}
-	ovs := []V{}
-	for _, v := range ivs {
-		if pred(v) {
-			ovs = append(ovs, v)
-		}
-	}
-	return ovs
+	return svs
 }
 
 // FilterMap creates a slice from of new values created by fun() where
