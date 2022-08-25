@@ -851,6 +851,133 @@ func TestMap(t *testing.T) {
 	}
 }
 
+// TestMerge verifies the sorted merging of slices.
+func TestMerge(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr   string
+		valuesA []int
+		valuesB []int
+		out     []int
+	}{
+		{
+			descr:   "Overlapping slices",
+			valuesA: []int{5, 4, 3, 2, 1},
+			valuesB: []int{3, 4, 5, 6, 7},
+			out:     []int{1, 2, 3, 3, 4, 4, 5, 5, 6, 7},
+		}, {
+			descr:   "Individual slices",
+			valuesA: []int{1, 2, 3, 4, 5},
+			valuesB: []int{9, 8, 7, 6},
+			out:     []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		}, {
+			descr:   "Empty first slice",
+			valuesA: []int{},
+			valuesB: []int{3, 2, 3, 1},
+			out:     []int{1, 2, 3, 3},
+		}, {
+			descr:   "Empty second slice",
+			valuesA: []int{3, 2, 3, 1},
+			valuesB: []int{},
+			out:     []int{1, 2, 3, 3},
+		}, {
+			descr:   "Both slices empty",
+			valuesA: []int{},
+			valuesB: []int{},
+			out:     nil,
+		}, {
+			descr:   "First slice nil",
+			valuesA: nil,
+			valuesB: []int{3, 2, 3, 1},
+			out:     []int{1, 2, 3, 3},
+		}, {
+			descr:   "Second slice nil",
+			valuesA: []int{3, 2, 3, 1},
+			valuesB: nil,
+			out:     []int{1, 2, 3, 3},
+		}, {
+			descr:   "Nil slices",
+			valuesA: nil,
+			valuesB: nil,
+			out:     nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.Merge(test.valuesA, test.valuesB), test.out)
+	}
+}
+
+// TestMergeWith verifies the sorted merging of slices.
+func TestMergeWith(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	type V struct {
+		k int
+		v string
+	}
+
+	key := func(v V) int {
+		return v.k
+	}
+	tests := []struct {
+		descr   string
+		valuesA []V
+		valuesB []V
+		out     []V
+	}{
+		{
+			descr:   "Overlapping slices",
+			valuesA: []V{{5, "five"}, {4, "four"}, {3, "three"}, {2, "two"}, {1, "one"}},
+			valuesB: []V{{7, "seven"}, {6, "six"}, {5, "five"}, {4, "four"}},
+			out: []V{{1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}, {4, "four"},
+				{5, "five"}, {5, "five"}, {6, "six"}, {7, "seven"}},
+		}, {
+			descr:   "Individual slices",
+			valuesA: []V{{5, "five"}, {4, "four"}, {3, "three"}},
+			valuesB: []V{{2, "two"}, {1, "one"}, {6, "six"}},
+			out:     []V{{1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}, {5, "five"}, {6, "six"}},
+		}, {
+			descr:   "Empty first slice",
+			valuesA: []V{},
+			valuesB: []V{{2, "two"}, {1, "one"}, {6, "six"}},
+			out:     []V{{1, "one"}, {2, "two"}, {6, "six"}},
+		}, {
+			descr:   "Empty second slice",
+			valuesA: []V{{5, "five"}, {4, "four"}, {3, "three"}},
+			valuesB: []V{},
+			out:     []V{{3, "three"}, {4, "four"}, {5, "five"}},
+		}, {
+			descr:   "Both slices empty",
+			valuesA: []V{},
+			valuesB: []V{},
+			out:     nil,
+		}, {
+			descr:   "First slice nil",
+			valuesA: nil,
+			valuesB: []V{{2, "two"}, {1, "one"}, {6, "six"}},
+			out:     []V{{1, "one"}, {2, "two"}, {6, "six"}},
+		}, {
+			descr:   "Second slice nil",
+			valuesA: []V{{5, "five"}, {4, "four"}, {3, "three"}},
+			valuesB: nil,
+			out:     []V{{3, "three"}, {4, "four"}, {5, "five"}},
+		}, {
+			descr:   "Nil slices",
+			valuesA: nil,
+			valuesB: nil,
+			out:     nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.MergeWith(test.valuesA, test.valuesB, key), test.out)
+	}
+}
+
 // TestReverse verifies the reversal of slices.
 func TestReverse(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
@@ -1251,50 +1378,178 @@ func TestUnique(t *testing.T) {
 	}
 }
 
+// TestUniqueMerge verifies the unique sorted merging of slices.
+func TestUniqueMerge(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr   string
+		valuesA []int
+		valuesB []int
+		out     []int
+	}{
+		{
+			descr:   "Overlapping slices",
+			valuesA: []int{5, 4, 3, 2, 1},
+			valuesB: []int{3, 4, 5, 6, 7},
+			out:     []int{1, 2, 3, 4, 5, 6, 7},
+		}, {
+			descr:   "Individual slices",
+			valuesA: []int{1, 2, 3, 4, 5},
+			valuesB: []int{9, 8, 7, 6},
+			out:     []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		}, {
+			descr:   "Empty first slice",
+			valuesA: []int{},
+			valuesB: []int{3, 2, 3, 1},
+			out:     []int{1, 2, 3},
+		}, {
+			descr:   "Empty second slice",
+			valuesA: []int{3, 2, 3, 1},
+			valuesB: []int{},
+			out:     []int{1, 2, 3},
+		}, {
+			descr:   "Both slices empty",
+			valuesA: []int{},
+			valuesB: []int{},
+			out:     nil,
+		}, {
+			descr:   "First slice nil",
+			valuesA: nil,
+			valuesB: []int{3, 2, 3, 1},
+			out:     []int{1, 2, 3},
+		}, {
+			descr:   "Second slice nil",
+			valuesA: []int{3, 2, 3, 1},
+			valuesB: nil,
+			out:     []int{1, 2, 3},
+		}, {
+			descr:   "Nil slices",
+			valuesA: nil,
+			valuesB: nil,
+			out:     nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.UniqueMerge(test.valuesA, test.valuesB), test.out)
+	}
+}
+
+// TestUniqueMergeWith verifies the unique sorted merging of slice.
+func TestUniqueMergeWith(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	type V struct {
+		k int
+		v string
+	}
+
+	key := func(v V) int {
+		return v.k
+	}
+	tests := []struct {
+		descr   string
+		valuesA []V
+		valuesB []V
+		out     []V
+	}{
+		{
+			descr:   "Overlapping slices",
+			valuesA: []V{{5, "five"}, {4, "four"}, {3, "three"}, {2, "two"}, {1, "one"}},
+			valuesB: []V{{7, "seven"}, {6, "six"}, {5, "five"}, {4, "four"}},
+			out:     []V{{1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}, {5, "five"}, {6, "six"}, {7, "seven"}},
+		}, {
+			descr:   "Individual slices",
+			valuesA: []V{{5, "five"}, {4, "four"}, {3, "three"}},
+			valuesB: []V{{2, "two"}, {1, "one"}, {6, "six"}},
+			out:     []V{{1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}, {5, "five"}, {6, "six"}},
+		}, {
+			descr:   "Empty first slice",
+			valuesA: []V{},
+			valuesB: []V{{2, "two"}, {1, "one"}, {6, "six"}},
+			out:     []V{{1, "one"}, {2, "two"}, {6, "six"}},
+		}, {
+			descr:   "Empty second slice",
+			valuesA: []V{{5, "five"}, {4, "four"}, {3, "three"}},
+			valuesB: []V{},
+			out:     []V{{3, "three"}, {4, "four"}, {5, "five"}},
+		}, {
+			descr:   "Both slices empty",
+			valuesA: []V{},
+			valuesB: []V{},
+			out:     nil,
+		}, {
+			descr:   "First slice nil",
+			valuesA: nil,
+			valuesB: []V{{2, "two"}, {1, "one"}, {6, "six"}},
+			out:     []V{{1, "one"}, {2, "two"}, {6, "six"}},
+		}, {
+			descr:   "Second slice nil",
+			valuesA: []V{{5, "five"}, {4, "four"}, {3, "three"}},
+			valuesB: nil,
+			out:     []V{{3, "three"}, {4, "four"}, {5, "five"}},
+		}, {
+			descr:   "Nil slices",
+			valuesA: nil,
+			valuesB: nil,
+			out:     nil,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		assert.Equal(slices.UniqueMergeWith(test.valuesA, test.valuesB, key), test.out)
+	}
+}
+
 // TestUnique verifies the unifying of a slice.
 func TestUniqueWith(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
-	type foo struct {
-		key   string
-		value int
+	type V struct {
+		k string
+		v int
 	}
-	fookey := func(f foo) string { return f.key }
 
+	key := func(v V) string {
+		return v.k
+	}
 	tests := []struct {
 		descr  string
-		values []foo
-		out    []foo
+		values []V
+		out    []V
 	}{
 		{
 			descr:  "Longer slice with one double value",
-			values: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}},
-			out:    []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
+			values: []V{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}},
+			out:    []V{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
 		}, {
 			descr:  "Longer slice with one multiple time value",
-			values: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}, {"three", 3}},
-			out:    []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
+			values: []V{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}, {"three", 3}},
+			out:    []V{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
 		}, {
 			descr: "Longer slice with multiple multiple time values",
-			values: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}, {"three", 3},
+			values: []V{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"three", 3}, {"three", 3},
 				{"two", 2}, {"three", 3}, {"four", 4}, {"one", 1}},
-			out: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
+			out: []V{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}},
 		}, {
 			descr:  "Longer slice without any double values",
-			values: []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}},
-			out:    []foo{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}},
+			values: []V{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}},
+			out:    []V{{"one", 1}, {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}},
 		}, {
 			descr:  "Longer slice ony with double values/keys",
-			values: []foo{{"one", 1}, {"one", 2}, {"one", 3}, {"one", 4}, {"one", 5}},
-			out:    []foo{{"one", 1}},
+			values: []V{{"one", 1}, {"one", 2}, {"one", 3}, {"one", 4}, {"one", 5}},
+			out:    []V{{"one", 1}},
 		}, {
 			descr:  "Single value slice",
-			values: []foo{{"one", 1}},
-			out:    []foo{{"one", 1}},
+			values: []V{{"one", 1}},
+			out:    []V{{"one", 1}},
 		}, {
 			descr:  "Empty slice",
-			values: []foo{},
-			out:    []foo{},
+			values: []V{},
+			out:    []V{},
 		}, {
 			descr:  "Nil slice",
 			values: nil,
@@ -1304,7 +1559,7 @@ func TestUniqueWith(t *testing.T) {
 
 	for _, test := range tests {
 		assert.Logf(test.descr)
-		assert.Equal(slices.UniqueWith(test.values, fookey), test.out)
+		assert.Equal(slices.UniqueWith(test.values, key), test.out)
 	}
 }
 
