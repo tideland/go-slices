@@ -11,6 +11,10 @@ package slices // import "tideland.dev/go/slices"
 // IMPORTS
 //--------------------
 
+import (
+	"golang.org/x/exp/constraints"
+)
+
 //--------------------
 // SLICES
 //--------------------
@@ -234,6 +238,21 @@ func Map[I, O any](ivs []I, fun func(I) O) []O {
 	return ovs
 }
 
+// Merge merges two slices in a sorted way together.
+func Merge[V constraints.Ordered](vsa, vsb []V) []V {
+	return Sort(Append(vsa, vsb))
+}
+
+// MergeWith merges two slices and uses a comparator function for sorting.
+func MergeWith[V any, K constraints.Ordered](vsa, vsb []V, key func(V) K) []V {
+	less := func(vs []V, i, j int) bool {
+		ki := key(vs[i])
+		kj := key(vs[j])
+		return ki < kj
+	}
+	return SortWith(Append(vsa, vsb), less)
+}
+
 // Reverse returns the slice in reverse order.
 func Reverse[V any](ivs []V) []V {
 	if ivs == nil {
@@ -331,7 +350,7 @@ func TakeWhile[V any](ivs []V, pred func(V) bool) []V {
 }
 
 // Unique returns a slice which contains each value only once. The second
-// and further values are deleted.
+// and further values are dropped.
 func Unique[V comparable](ivs []V) []V {
 	if ivs == nil {
 		return nil
@@ -347,20 +366,36 @@ func Unique[V comparable](ivs []V) []V {
 	return ovs
 }
 
-// UniqueWith returns a slice which contains each pred returned value only once.
-// The second and further values are deleted. The returned value could be a
-// e.g. field of a struct.
-func UniqueWith[V any, C comparable](ivs []V, pred func(V) C) []V {
+// UniqueMerge merges two slices in a sorted way together. Duplicates are dropped.
+func UniqueMerge[V constraints.Ordered](vsa, vsb []V) []V {
+	return Unique(Sort(Append(vsa, vsb)))
+}
+
+// UniqueMergeWith merges two slices and uses a key function to get a sortable key
+// of the values. This could e.g. be a field of a struct. Duplicate key values are
+// dropped.
+func UniqueMergeWith[V any, K constraints.Ordered](vsa, vsb []V, key func(V) K) []V {
+	less := func(vs []V, i, j int) bool {
+		ki := key(vs[i])
+		kj := key(vs[j])
+		return ki < kj
+	}
+	return UniqueWith(SortWith(Append(vsa, vsb), less), key)
+}
+
+// UniqueWith returns a slice which contains each value return by the key function
+// only once.  The returned value could e.g. be a fiel of a struct.
+func UniqueWith[V any, K comparable](ivs []V, key func(V) K) []V {
 	if ivs == nil {
 		return nil
 	}
 	ovs := []V{}
-	isContained := map[C]struct{}{}
+	isContained := map[K]struct{}{}
 	for _, v := range ivs {
-		cv := pred(v)
-		if _, ok := isContained[cv]; !ok {
+		k := key(v)
+		if _, ok := isContained[k]; !ok {
 			ovs = append(ovs, v)
-			isContained[cv] = struct{}{}
+			isContained[k] = struct{}{}
 		}
 	}
 	return ovs
