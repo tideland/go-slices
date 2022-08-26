@@ -7,9 +7,13 @@
 
 package slices // import "tideland.dev/go/slices"
 
-import "golang.org/x/exp/constraints" //--------------------
+//--------------------
 // IMPORTS
 //--------------------
+
+import (
+	"golang.org/x/exp/constraints"
+)
 
 //--------------------
 // SLICES
