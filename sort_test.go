@@ -202,6 +202,50 @@ func TestIsSortedWith(t *testing.T) {
 	}
 }
 
+// TestShuffle verifies the random shuffling of slices.
+func TestShuffle(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	tests := []struct {
+		descr  string
+		values []int
+		sorted bool
+	}{
+		{
+			descr:  "Unordered slice",
+			values: []int{5, 7, 1, 3, 4, 2, 8, 6, 9},
+			sorted: false,
+		}, {
+			descr:  "Ordered slice",
+			values: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			sorted: false,
+		}, {
+			descr:  "Single value slice",
+			values: []int{1, 1, 1, 1, 1},
+			sorted: true,
+		}, {
+			descr:  "Empty slice",
+			values: []int{},
+			sorted: true,
+		}, {
+			descr:  "Nil slice",
+			values: nil,
+			sorted: true,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+
+		shuffled := slices.Shuffle(test.values)
+		sorted := slices.Sort(shuffled)
+
+		assert.Equal(len(shuffled), len(test.values))
+		assert.Equal(slices.IsSorted(shuffled), test.sorted)
+		assert.Equal(slices.IsSorted(sorted), true)
+	}
+}
+
 //--------------------
 // BENCHMARKS AND FUZZ TESTS
 //--------------------
