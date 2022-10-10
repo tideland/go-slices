@@ -12,6 +12,7 @@ package slices // import "tideland.dev/go/slices"
 //--------------------
 
 import (
+	"math/rand"
 	"runtime"
 
 	"golang.org/x/exp/constraints"
@@ -21,8 +22,9 @@ import (
 // SORT
 //--------------------
 
-// Sort provides a parallel quicksort for a slice of values with the
-// constraint ordered.
+// Sort returns a sorted copy of the given slice of values. It
+// uses a parallel quicksort. The type of the slice value has to
+// fulfil the constraints.Ordered constraint.
 func Sort[V constraints.Ordered](ivs []V) []V {
 	less := func(vs []V, i, j int) bool {
 		return vs[i] < vs[j]
@@ -31,9 +33,10 @@ func Sort[V constraints.Ordered](ivs []V) []V {
 	return SortWith(ivs, less)
 }
 
-// SortWith sorts a slice based on a less function comparing the two values
-// at the indexes i and j and returning true if the value at i has to be sorted
-// before the one at j.
+// SortsWith reurns a sorted copy of the given slice like Sort().
+// Instead of having to fulfil a constraint any value type but can
+// be used. The given less function must do the comparison of two
+// values.
 func SortWith[V any](ivs []V, less func(vs []V, i, j int) bool) []V {
 	ovs := Copy(ivs)
 
@@ -61,6 +64,18 @@ func IsSortedWith[V any](vs []V, less func(a, b V) bool) bool {
 		}
 	}
 	return true
+}
+
+// Shuffle returns a randomly shuffled copy of of the
+// given slices of values.
+func Shuffle[V any](vs []V) []V {
+	ovs := Copy(vs)
+
+	rand.Shuffle(len(ovs), func(i, j int) {
+		ovs[i], ovs[j] = ovs[j], ovs[i]
+	})
+
+	return ovs
 }
 
 //--------------------
