@@ -17,5 +17,5 @@ new slices, even if a variable operation would have no effect.
 
 ## Contributors
 
-- Frank Mueller (https://github.com/themue / https://github.com/tideland / https://tideland.dev)
+- Frank Mueller (https://github.com/themue / https://github.com/tideland / https://themue.dev)
 
