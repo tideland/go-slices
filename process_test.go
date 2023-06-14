@@ -1,6 +1,6 @@
 // Tideland Go Testing - Unit Tests
 //
-// Copyright (C) 2022 Frank Mueller / Tideland / Oldenburg / Germany
+// Copyright (C) 2022-2023 Frank Mueller / Tideland / Oldenburg / Germany
 //
 // MatchesAll rights reserved. Use of this source code is governed
 // by the new BSD license.
@@ -168,7 +168,7 @@ func TestFoldRLast(t *testing.T) {
 }
 
 // TestMapFoldL verifies the left combined mapping and folding.
-func MapFoldL(t *testing.T) {
+func TestMapFoldL(t *testing.T) {
 	assert := asserts.NewTesting(t, asserts.FailStop)
 
 	in := "0"
