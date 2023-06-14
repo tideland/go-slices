@@ -1,6 +1,6 @@
 // Tideland Go Testing - Unit Tests
 //
-// Copyright (C) 2022 Frank Mueller / Tideland / Oldenburg / Germany
+// Copyright (C) 2022-2023 Frank Mueller / Tideland / Oldenburg / Germany
 //
 // MatchesAll rights reserved. Use of this source code is governed
 // by the new BSD license.
@@ -12,6 +12,7 @@ package slices_test // import "tideland.dev/go/slices"
 //--------------------
 
 import (
+	"runtime"
 	"testing"
 
 	"tideland.dev/go/audit/asserts"
@@ -157,6 +158,18 @@ func TestIsSorted(t *testing.T) {
 		assert.Logf(test.descr)
 		assert.Equal(slices.IsSorted(test.values), test.out)
 	}
+}
+
+// TestLargeSort verifies the sorting of large slices with a parallel QuickSort.
+func TestLargeSort(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+	size := runtime.NumCPU()*2048 + 1
+	gen := generators.New(generators.FixedRand())
+	ivs := gen.Ints(0, 10000, size)
+
+	assert.False(slices.IsSorted(ivs))
+	ovs := slices.Sort(ivs)
+	assert.True(slices.IsSorted(ovs))
 }
 
 // TestIsSortedWith verifies the check of sorted slices.

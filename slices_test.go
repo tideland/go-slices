@@ -1,6 +1,6 @@
 // Tideland Go Testing - Unit Tests
 //
-// Copyright (C) 2022 Frank Mueller / Tideland / Oldenburg / Germany
+// Copyright (C) 2022-2023 Frank Mueller / Tideland / Oldenburg / Germany
 //
 // MatchesAll rights reserved. Use of this source code is governed
 // by the new BSD license.
@@ -1560,6 +1560,60 @@ func TestUniqueWith(t *testing.T) {
 	for _, test := range tests {
 		assert.Logf(test.descr)
 		assert.Equal(slices.UniqueWith(test.values, key), test.out)
+	}
+}
+
+// TestSearch verifies the search in a slice.
+func TestSearch(t *testing.T) {
+	assert := asserts.NewTesting(t, asserts.FailStop)
+
+	pred := func(v int) bool {
+		return v == 3
+	}
+	tests := []struct {
+		descr  string
+		values []int
+		out    int
+		ok     bool
+	}{
+		{
+			descr:  "Search in empty slice",
+			values: []int{},
+			out:    0,
+			ok:     false,
+		}, {
+			descr:  "Search in nil slice",
+			values: nil,
+			out:    0,
+			ok:     false,
+		}, {
+			descr:  "Search in slice with one value",
+			values: []int{3},
+			out:    3,
+			ok:     true,
+		}, {
+			descr:  "Search in slice with one value not found",
+			values: []int{1},
+			out:    0,
+			ok:     false,
+		}, {
+			descr:  "Search in slice with multiple values",
+			values: []int{1, 2, 3, 4, 5},
+			out:    3,
+			ok:     true,
+		}, {
+			descr:  "Search in slice with multiple values not found",
+			values: []int{1, 2, 4, 5},
+			out:    0,
+			ok:     false,
+		},
+	}
+
+	for _, test := range tests {
+		assert.Logf(test.descr)
+		v, ok := slices.Search(pred, test.values)
+		assert.Equal(v, test.out)
+		assert.Equal(ok, test.ok)
 	}
 }
 
